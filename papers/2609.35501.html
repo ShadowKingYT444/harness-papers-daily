@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SRHarness: A Harness for Agentic Symbolic Regression — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>SRHarness: A Harness for Agentic Symbolic Regression</h1>
+</header>
+
+<div class="kicker">Day 49 · Nov 17, 2026</div>
+<h1 style="margin-top:6px">SRHarness: A Harness for Agentic Symbolic Regression</h1>
+<p class="meta">Zihan Yu, Shixuan Zhou, Hao Huang, Jingtao Ding, Yong Li · published 2026-09-28 · <a href="https://arxiv.org/abs/2609.35501">arXiv:2609.35501</a></p>
+<p><span class="badge rel2">context</span></p>
+<div class="card"><h2>One line</h2>
+<p>A carefully engineered, domain-specific harness for LLM-driven symbolic regression whose composable scientific actions, persistent hypothesis state, and trajectory lifecycle management deliver large symbolic-recovery gains with no search over the harness itself.</p>
+<h2>The problem</h2>
+<p>In agentic symbolic regression, the LLM is promoted from equation-proposer to search controller, but prior systems bundle the supporting runtime — action interfaces, hypothesis memory, trajectory management — into strategy-specific scaffolding, so benchmark comparisons conflate differences in search strategy with differences in harness quality. SRHarness asks whether the harness itself, as an independent runtime layer, can be the decisive factor in long-horizon scientific discovery.</p>
+<h2>How it works</h2>
+<p>SRHarness separates three layers — base model, search strategy, and harness — and implements the harness through three mechanisms:</p>
+<p class='num'>1. <strong>Composable scientific actions.</strong> An action is written r = A(q; κ), where q holds the agent-chosen scientific arguments and κ the harness-managed execution context (data bindings, train/validation splits, runtime config). Action arguments can be expression-based <em>views</em> over data — a raw variable xᵢ, a transformed view like log xᵢ or xᵢ/xⱼ, or a candidate-derived view like the residual y − f(x) — so intermediate quantities flow between heterogeneous actions without rebuilding datasets. Candidate-producing actions follow a shared candidate–evidence contract (expression, evaluation, complexity, evidence, provenance) with common validity semantics before admission, and each action separates its machine-readable result from a compact model-facing observation.</p>
+<p class='num'>2. <strong>Persistent scientific state.</strong> Admitted hypotheses live in structured state Sₜ outside the conversational transcript, surviving restarts and abandoned branches. The model sees only a bounded projection vₜ = P_ρ(Sₜ): a fit–complexity Pareto view and a Top-k view, exposing compact subsets of the accumulated search state.</p>
+<p class='num'>3. <strong>Trajectory lifecycle management.</strong> The harness coordinates continuation, branching, restart, and termination with provenance tracking. The reference implementation instantiates this as a configurable R×C×L×K scheduler (restart rounds × independent branches × refinement depth × local response samples); at each restart a Top-k view of the persistent state seeds the new conversation. In the experiments the action set (statistics analysis, relationship analysis, evaluate/submit formula, constant fit, call PySR, call SINDy, code executor) and the R1-C1-L30-K1 schedule are fixed; there is no optimization of the harness itself.</p>
+<p>Code: https://github.com/tsinghua-fib-lab/SRHarness</p>
+<h2>Key results</h2>
+<p>Evaluated on LLM-SRBench (240 problems: LSR-Synth and LSR-Transform, plus a new anonymized LSR-Transform-Anon track that strips all scientific descriptions and variable names):</p>
+<ul>
+<li>LSR-Transform symbolic accuracy (DeepSeek-v4-flash-0731): <strong>93.69%</strong> vs 62.16% for SR-Scientist, 45.05% LLM-SR, 48.65% IGSR — with the lowest expression complexity (14.64) among matched methods. All methods reach NMSE ~10⁻¹⁴, so the gain is genuinely structural recovery, not fitting.</li>
+<li>LSR-Transform-Anon: <strong>72.97%</strong> symbolic accuracy vs 39.64% for SR-Scientist; SA retention 78% (vs 28% for LLM-SR/IGSR, 64% SR-Scientist), showing the advantage isn&#x27;t just semantic-recall of known laws.</li>
+<li>vs Codex under the same DeepSeek-v4-flash-0731 backbone: <strong>72.97% vs 20.72%</strong> — a pure harness effect with the model held fixed, reaching parity with Codex on GPT-5.5 (68.47%). Giving Codex the same scientific tools directly <em>hurt</em> it (68.47% → 64.86%) while increasing runtime and tokens — the value is in the integration, not the tool list.</li>
+<li>LSR-Synth OOD accuracy: physics 78.00%, chemistry 78.87%, biology 87.09%, materials 96.00%; symbolic accuracy 6.20% vs &lt;1% for matched LLM baselines; 11.11 min/problem (vs 57.67 for LLM-SR).</li>
+<li>Ablations: restricting to a bare code executor costs ~6 pp (74.47% → 68.47%); disabling expression-based views costs ~7 pp (→ 67.57%); Pareto view vs best-formula-only costs ~8 pp (74.47% → 66.67%); deep refinement beats reallocating budget to restarts/branches (R1-C1-L30-K1 74.47% vs more restarts 66.67%).</li>
+</ul>
+<h2>How it relates to adaptive decomposition</h2>
+<p>SRHarness is an existence proof that harness design can dominate model and tool choice in agentic performance — the same lesson adaptive decomposition bets on — and its persistent-state-with-projection design is genuinely useful machinery: bounded model-facing views over an accumulating archive are how you&#x27;d want cross-generation memory to look. But it is the <em>opposite</em> of adaptive decomposition in the key sense: everything is fixed and human-designed (action set, projection policy, R×C×L×K schedule), the harness never changes, and the agent never discovers any decomposition of anything. There is no per-component search budget that adapts to evidence (the R/C/L/K allocation is a fixed hyperparameter grid), no splitting or fusing, and no recursion. It&#x27;s a strong reference point for what a hand-built harness buys; the open question it raises for adaptive decomposition is whether an agent-discovered harness can match this level of performance without the domain engineering.</p>
+<h2>Limits and open questions</h2>
+<p>Everything here is symbolic regression; it&#x27;s unclear how much of the design (candidate–evidence contracts, Pareto projections, R×C×L×K) transfers to general agent tasks versus being domain-tuned. Baselines were re-run under a token-aligned rather than call-count-aligned budget, which the authors defend but which means the numbers aren&#x27;t directly comparable to the baselines&#x27; own published figures. The fixed-schedule search never adapts its budget allocation to the problem — a place where an adaptive scheme would be expected to win, but that comparison isn&#x27;t made. I only read the main text plus the appendix methodology; detailed per-backbone efficiency tables live in the appendix and weren&#x27;t fully audited.</p></div>
+<div class="nav"><span><a href="2609.38143.html">← Day 48: Learning Meta-Skills for Agent Harness Design in Test-Time A</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.38024.html">Day 50: Retrieval-Augmented Skill Optimization via Cross-Harness Ada →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

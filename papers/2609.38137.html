@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LongHarness Bench: Stress-Testing Language Model Harnesses for Long-Context Reasoning — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>LongHarness Bench: Stress-Testing Language Model Harnesses for Long-Context Reasoning</h1>
+</header>
+
+<div class="kicker">Day 51 · Nov 19, 2026</div>
+<h1 style="margin-top:6px">LongHarness Bench: Stress-Testing Language Model Harnesses for Long-Context Reasoning</h1>
+<p class="meta">Quang Hieu Pham, Thuy Duong Nguyen, Jocelyn Qiaochu Chen, Xi Ye · published 2026-09-29 · <a href="https://arxiv.org/abs/2609.38137">arXiv:2609.38137</a></p>
+<p><span class="badge rel2">context</span></p>
+<div class="card"><h2>One line</h2>
+<p>A benchmark of four long-context tasks that separates harnesses on <em>both</em> accuracy and compute cost, showing that no harness wins everywhere and that extra inference often buys nothing.</p>
+<h2>The problem</h2>
+<p>Existing long-context benchmarks (LongBench-v2, OOLONG-Synth, HELMET) saturate on accuracy: strong model-harness combinations all score similarly, so you can&#x27;t tell which harness strategy is actually better. Worse, accuracy alone hides order-of-magnitude cost differences — two systems can reach similar accuracy while one spends 12x more compute. The authors argue long-context harnesses must be evaluated as model–harness <em>combinations</em> on an accuracy–cost frontier, using tasks that admit multiple solution strategies with genuinely different costs.</p>
+<h2>How it works</h2>
+<p>Four tasks, each with ~100–120K tokens of information-dense context and exact-set scoring, designed so that retrieval and reasoning are coupled (intermediate findings determine what to retrieve next):</p>
+<p class='num'>1. <strong>Constraint Solving Search</strong>: ~160 people described across documents; find all five satisfying 3–5 scattered conditions (e.g., works nights, uses transit, eats fruit). One condition is deliberately selective and one common, so checking the selective condition first is far cheaper than checking everything for everyone.</p>
+<p class='num'>2. <strong>Equivalent Program Pair Search</strong>: 200 Python programs (from APPS, statements and I/O examples stripped); find every functionally-equivalent pair hidden among behaviorally-different near-mutant lookalikes. Requires grouping by inferred purpose, then pruning with distinguishing inputs.</p>
+<p class='num'>3. <strong>Program Execution Tracing</strong>: recover an 8-step query program from 320 shuffled records of prior computations; earlier outputs become the search keys for later steps, so a wrong match corrupts the whole trace.</p>
+<p class='num'>4. <strong>Outlier Memo Detection</strong>: 700 memos with 2,500 statements; find the 15 memos containing claims that contradict relationships established only by combining facts from <em>other</em> memos.</p>
+<p>Each instance gets a 3M-token budget (cumulative input+output). They evaluate five models (GPT-5.6-sol, Gemini 3.8 Flash, Qwen3.8-27B, GLM-5.3, Kimi-K2.6) under direct inference and four harnesses (RLM, OpenCode, mini-swe-agent, ReAct), reporting exact accuracy plus estimated USD cost per instance.</p>
+<h2>Key results</h2>
+<ul>
+<li>The benchmark stays hard: the best configuration (GPT-5.6-sol + mini-swe-agent) reaches only 68% macro-average accuracy; Kimi-K2.6 never exceeds 1.5%.</li>
+<li>Same accuracy, wildly different cost: on Outlier Memo Detection, RLM hits 92% at $7.23/instance while mini-swe-agent hits 100% at $0.583 (12.4x cheaper) by collecting facts into a table and verifying with a local script instead of repeated model reads.</li>
+<li>More inference doesn&#x27;t ensure success: on Equivalent Program Pair Search, GPT-5.6-sol + RLM scores 2% at $7.86 vs 44% at $0.78 for direct inference — RLM&#x27;s recursive decomposition groups programs well but leaves too many candidates for the final comparison step.</li>
+<li>No harness leads on all four tasks; every harness both helps and hurts GPT-5.6-sol relative to direct inference (e.g., OpenCode lifts Program Tracing 94%→96% but collapses Outlier Memos 44%→10% and Pairs 44%→0%).</li>
+<li>Weaker models gain more from harnesses: Qwen3.8-27B goes 0%→38.5%, GLM-5.3 9.5%→42.5%, nearly matching GPT-5.6-sol&#x27;s harnessed scores.</li>
+<li>On the two existing benchmarks the same configurations show either uniformly positive gains or weak separation — the new tasks reveal structure the old ones hide.</li>
+</ul>
+<h2>How it relates to adaptive decomposition</h2>
+<p>This is an evaluation benchmark, not an optimizer — nothing here evolves a harness, so the mechanism overlap is zero. Two angles make it worth knowing anyway. First, it&#x27;s a cautionary data point on decomposition itself: RLM <em>recursively decomposes</em> the long prompt into subcalls, and on Equivalent Program Pair Search that decomposition actively hurts (2% at 10x the cost) because it shrinks the context per call without shrinking the final decision space. An adaptive-decomposition system that splits subproblems needs to check that the split actually reduces the remaining work, not just the per-call context. Second, the paper establishes per-instance compute cost as a first-class metric — exactly the currency per-component search budgets would be measured in — and its task design (multiple strategies, different costs, exact verification) is a natural testbed for evaluating an adaptive-decomposition harness against fixed harnesses.</p>
+<h2>Limits and open questions</h2>
+<p>Cost is estimated from API rates, not measured compute, and token prices are a moving target (Appendix C). Only five models and four harnesses are tested, all on English text/code tasks — no tool-use-heavy or multimodal settings. Exact-set scoring is brittle: a run that finds 14 of 15 outlier memos scores the same as one that finds none, which undervalues partial reasoning. The paper compares static harnesses; it says nothing about <em>evolving</em> harnesses or whether the observed accuracy–cost tradeoffs are stable across optimization. And the tasks are synthetic by construction — it&#x27;s an open question whether the harness rankings transfer to real long-context workloads.</p></div>
+<div class="nav"><span><a href="2609.38024.html">← Day 50: Retrieval-Augmented Skill Optimization via Cross-Harness Ada</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.37864.html">Day 52: AgentBug-Smith: Automatically Reproducing Real-World Harness →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

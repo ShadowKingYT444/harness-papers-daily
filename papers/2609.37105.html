@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VACE: Validation-Gated Alternating Co-Evolution of Agent Models and Harnesses — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>VACE: Validation-Gated Alternating Co-Evolution of Agent Models and Harnesses</h1>
+</header>
+
+<div class="kicker">Day 46 · Nov 14, 2026</div>
+<h1 style="margin-top:6px">VACE: Validation-Gated Alternating Co-Evolution of Agent Models and Harnesses</h1>
+<p class="meta">Jiexing Qi, Yu He, Jun Liu, Qichen Huang, Shaohua Hu, Zhan Dang, Guohua Chen, Rui Yang, Wen Jiang, Yang Liu, Tao Lyu, Fangming Li · published 2026-09-29 · <a href="https://arxiv.org/abs/2609.37105">arXiv:2609.37105</a></p>
+<p><span class="badge rel3">relevant</span></p>
+<div class="card"><h2>One line</h2>
+<p>Alternates agentic RL (weight updates) with trajectory-driven harness revision, and — the key move — validates each proposed harness at the updated checkpoint, adopting it only if it strictly improves validation before it can shape the next RL round.</p>
+<h2>The problem</h2>
+<p>Model weights and the harness are coupled: weight updates change how the model uses the harness, while harness updates change the trajectories the model trains on. Optimizing one while fixing the other leaves the interaction unaddressed — a skill tuned for an early checkpoint can become a straitjacket after training, and a new workflow can expose decisions the model hasn&#x27;t learned. The authors note the reverse hazard too: harness refinement proposes discrete changes from trajectory feedback that need not actually help the updated model (e.g., extra retrieval improves evidence coverage but burns the interaction budget on easy tasks). Since an adopted revision changes the trajectories of the next RL stage, a bad revision poisons downstream training — so proposal and acceptance should be separate decisions.</p>
+<h2>How it works</h2>
+<p>Each round of the loop has three stages:</p>
+<p class='num'>1. <strong>RL stage</strong>: train the model with agentic RL (GRPO with DAPO-style oversampling, outcome rewards only — binary correctness on OfficeQA, dense partial credit on AutomationBench) under the current harness fixed, collecting trajectories T_t. Weight update is always retained.</p>
+<p class='num'>2. <strong>Harness proposal</strong>: a HarnessEvolve-style optimizer S uses T_t (failed executions as diagnostic evidence) to propose a single harness revision H&#x27;_t — edits scoped to skills and execution guidance, tool semantics and environment rules held fixed.</p>
+<p class='num'>3. <strong>Validation gate</strong>: with the updated model W_{t+1} held fixed, evaluate incumbent H_t and candidate H&#x27;_t on the same validation tasks with the same evaluator. Adopt only on strict improvement (Δ &gt; 0; ties keep the incumbent). The retained harness governs the next RL round.</p>
+<p>Implementation runs through Uni-Agent connecting execution, trajectory collection, RL, and harness refinement. Scheduling variants tested: WHALE-style (same alternation but commits every harness proposal ungated) and SIA-style (harness-first, then RL under the frozen best harness), all sharing the same optimizers so the only difference is the schedule/gate.</p>
+<h2>Key results</h2>
+<p>Qwen3.5-9B on OfficeQA (84/53/109 train/val/test) and AutomationBench (209-task HR/Marketing/Finance subset, 80/58/71 split):</p>
+<ul>
+<li>VACE: 45.26% test accuracy on OfficeQA, 75.19% mean partial credit on AutomationBench — +13.15 and +24.94 pp over the static agent, +9.98/+13.58 over harness-only, +6.43/+9.09 pp over weight-only RL (38.83% / 66.10%).</li>
+<li>vs ungated alternation: +4.59 pp on OfficeQA (45.26 vs 40.67) and +6.95 pp on AutomationBench (75.19 vs 68.25) — the gate itself is worth several points.</li>
+<li>vs SIA-style harness-first: +4.59 pp on OfficeQA and +9.85 pp on AutomationBench (75.19 vs 65.35) — repeated alternation beats front-loading all harness work.</li>
+<li>The gate earns its keep: across 44 harness proposals, 25 accepted, 17 rejected as regressions at the updated checkpoint, 2 ties (OfficeQA 7/2/3 of 12; AutomationBench 18/0/14 of 32). Rejections are large when they happen — one OfficeQA proposal dropped validation 11.31 pp (60.37 → 49.06) despite being generated to fix observed failures; accepting it would have corrupted the next RL stage.</li>
+<li>Validation trajectories rise 30.28% → 47.17% (OfficeQA, +16.89 pp) and 53.08% → 81.42% (AutomationBench, +28.34 pp), though progress is non-monotonic — weight stages can also reduce the score, and the gate only compares harnesses at the current checkpoint.</li>
+</ul>
+<h2>How it relates to adaptive decomposition</h2>
+<p>Two things here matter for adaptive decomposition, and one big thing is missing. First, VACE is the cleanest empirical confirmation yet of the coupling worry that runs through the co-evolution literature (and that RLHarness flags): when the model and the harness move together, naive alternation adopts revisions that actively hurt the checkpoint they&#x27;ll run with — 17 of 44 proposals here. That&#x27;s directly relevant to a system that splits and fuses harness components online: each split/fuse proposal is a discrete structural change whose value can only be judged at the current checkpoint, and adopting a bad one reshapes all subsequent training data. I&#x27;d steal the checkpoint-specific validation gate as the acceptance rule for component-level proposals — it transfers cleanly.</p>
+<p>Second, the joint model+harness framing is the right level of generality: harness search and weight training aren&#x27;t separate pipelines but one co-evolutionary loop sharing trajectories. But the harness side is resolutely <strong>monolithic</strong>: each proposal is a single whole-harness revision (edits to &quot;skills and execution guidance&quot;), with no decomposition into independently-mutable components. There is no split/fuse operator, no notion of component granularity, no per-component budget — the proposal optimizer just rewrites whatever the trajectories suggest. So VACE says nothing about who discovers the decomposition; it&#x27;s HarnessEvolve (the proposer VACE builds on, which already has quality checks and performance-based selection) that does the revision work, and that work is whole-harness. Adaptive decomposition&#x27;s central question — the agent itself deciding when and how finely to carve the harness up — is untouched. Compared to PluginRSI&#x27;s component-level evolution, VACE is one level coarser on the harness side and one level deeper on the model side.</p>
+<h2>Limits and open questions</h2>
+<p>The paper&#x27;s own §5 is honest: repeated validation-set reuse invites adaptive selection effects, and the strict-improvement gate leans on noisy point estimates — with 44 accept/reject decisions on a 53-task and 58-task validation set, some of those rejections/acceptances are surely noise, not signal. I&#x27;d probe whether the gate holds up with a held-out acceptance set rather than the selection set. Scope is narrow: one model (Qwen3.5-9B), two benchmarks, edits limited to skills and execution guidance. The schedule is fixed (one proposal per RL stage) — the authors flag feedback-driven scheduling as future work, and I&#x27;d bet a component-level version of VACE would need it, since different components learn at different rates. Also worth noting: WHALE (ungated alternation, concurrent work) and Co-Harness (alternates failure-driven harness refinement with supervised training and also validates) are converging on the same loop from adjacent angles, so the &quot;alternation + gate&quot; pattern is becoming consensus rather than a differentiator — the differentiator left is <em>what</em> gets proposed, i.e., the granularity of the revision, which is exactly where adaptive decomposition sits.</p></div>
+<div class="nav"><span><a href="2609.36580.html">← Day 45: SafeCoEvo: Co-Evolving Safety Harnesses and Guards for LLM A</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.37950.html">Day 47: Video-RSI: Recursive Self-Improvement of Video Understanding →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>
