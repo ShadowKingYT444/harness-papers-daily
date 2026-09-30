@@ -86,11 +86,29 @@ for fn in sorted(os.listdir(SRC)):
         "body": body,
     })
 
-# digest order: relevance desc, then published desc
-papers.sort(key=lambda p: (-p["relevance"], p["published"]), reverse=False)
-for i, p in enumerate(papers):
-    p["day"] = i + 1
-    p["date"] = START + timedelta(days=i)
+# digest order: stable day assignments in schedule.json; new papers appended by relevance
+import json as _json
+SCHED_PATH = os.path.join(OUT, "schedule.json")
+sched = {}
+if os.path.exists(SCHED_PATH):
+    try:
+        sched = _json.load(open(SCHED_PATH))
+    except Exception:
+        sched = {}
+# drop ids no longer present
+known = {p["id"] for p in papers}
+sched = {k: v for k, v in sched.items() if k in known}
+next_day = max(sched.values()) + 1 if sched else 1
+new_ones = sorted([p for p in papers if p["id"] not in sched],
+                  key=lambda p: (-p["relevance"], p["published"]))
+for p in new_ones:
+    sched[p["id"]] = next_day
+    next_day += 1
+_json.dump(sched, open(SCHED_PATH, "w"), indent=1)
+papers.sort(key=lambda p: sched[p["id"]])
+for p in papers:
+    p["day"] = sched[p["id"]]
+    p["date"] = START + timedelta(days=p["day"] - 1)
 
 os.makedirs(PAPERS_OUT, exist_ok=True)
 
