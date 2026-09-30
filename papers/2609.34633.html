@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GenMem: Generative Symbolic Memory for Self-Evolving Harness — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>GenMem: Generative Symbolic Memory for Self-Evolving Harness</h1>
+</header>
+
+<div class="kicker">Day 23 · Oct 22, 2026</div>
+<h1 style="margin-top:6px">GenMem: Generative Symbolic Memory for Self-Evolving Harness</h1>
+<p class="meta">Xinke Jiang, Tao Feng, Weixuan Xu, Zhixin Zhang, Zhibang Yang, Wentao Zhang, Runchuan Zhu, Xu Chu, Junfeng Zhao, Yasha Wang · published 2026-09-28 · <a href="https://arxiv.org/abs/2609.34633">arXiv:2609.34633</a></p>
+<p><span class="badge rel3">relevant</span></p>
+<div class="card"><h2>One line</h2>
+<p>GenMem replaces dense-retrieval memory with generative symbolic addressing: memory agents learn to emit hierarchical discrete address tokens (SIDs) whose slots stay stable while the stored experience payloads are continually revised, letting a memory bank self-evolve without addressing drift.</p>
+<h2>The problem</h2>
+<p>Self-evolving agents need long-term experience memory, but dense retrieval couples addressing to content: every time an experience is revised, its embedding changes and silently reroutes which queries reach it — &quot;address variance.&quot; Reusable experience is also sparse and hierarchical (most entries redundant, refinement concentrated on repeatedly exercised entries, sub-skills shared across tasks), and its only supervision is delayed, indirect task-level feedback. The paper asks how an agent can keep learning &quot;which functional experience to fetch&quot; rather than a mapping to content versions that go stale with every revision.</p>
+<h2>How it works</h2>
+<p>Each memory entry is (x_i, z_i): a text payload x_i and a Symbolic Identifier z_i = (s_1, ..., s_L) in a Cartesian product [N_1]×...×[N_L]. SIDs are built offline: an LLM distills successful/failed trajectories into reusable procedures (seed set), a frozen encoder embeds them, and RQ-KMeans fits hierarchical codebooks to residuals — level 1 clusters embeddings, level ℓ+1 clusters the residuals. With codebook sizes (48,16,8,8) this yields 49,152 addresses from 80 discrete tokens. Codebooks are frozen after construction. The core invariant: evolution rewrites the payload in place, Evolve: (x_i, z_i) → (x′_i, z_i); the address never changes, so revision is decoupled from addressing.</p>
+<p>Three agents form a closed loop. MemRetriever generates a retrieval SID z_r from the query/context, fetches the payload, and rewrites it into task-adaptive support. StackPlanner (a multi-agent harness) executes the task, producing an answer and trajectory. MemEvolver distills the trajectory, generates an update SID z_e (not recomputed from the new payload), and returns an operation o ∈ {insert, revise} with a new payload — revise supports retention (unchanged), consolidation (merged), or deletion (empty payload). Training is four-stage: (1) SID alignment pretraining — five text↔SID mappings (q→z, τ→z, x→z, z→x, z→d) with an autoregressive next-symbol loss; (2) memory-operation mid-training — ReAct-style trajectories with rejection sampling and teacher distillation; (3) joint GRPO post-training (130 steps) with a dense process reward R_process = R_format + R_strategy + R_SID plus a contrastive outcome reward R_out = r_task(memory) − r_task(no-memory) + partial credit; (4) online self-evolution with all model parameters, encoder, and codebooks frozen — adaptation happens entirely through external memory writes. Emergent finding: SIDs behave like natural-language tokens and are compositional — combining multiple SIDs composes their stored experiences (one case shows &quot;address decomposition&quot; C → A+B, retrieving complementary sub-skills instead of copying one entry).</p>
+<h2>Key results</h2>
+<p>Offline evaluation (RQ1) spans ALFWorld, WebShop, search-augmented QA (2Wiki/HotpotQA in-domain; Bamboogle, MuSiQue, NQ, TriviaQA out-of-domain), plus medical reasoning and deep research, against memory-augmented baselines and RL methods. GenMem averages +17.0 percentage points before and +15.3 pp after Harness-RL training of StackPlanner versus memory-free baselines, and beats the second-best method SDAR by 3.7 pp on average token F1. Retrieval: final Top-5 hit rate 13.15% vs 10.28% (SkillRouter), 12.52% (TF-IDF), 2.89% (Qwen3-Embedding-0.6B). Cross-harness/domain transfer: +2% on Research benchmarks across StackPlanner, TCRAG, and OpenHands harnesses; Search ranges −1% to +1%. Online self-evolution (RQ2) on a held-out stream with frozen models: Candidate Hit rises 20.25% → 25.58% and Task ACC 30.56% → 36.20% from t=0 to t=9, while three content-coupled baselines (which rebuild dense indices each checkpoint) show limited gains or degradation from embedding drift — the paper&#x27;s empirical confirmation of addressing invariance. Training used 8× A100 80GB GPUs with DeepSpeed ZeRO-3, vLLM rollouts, pretraining LRs 1e-5 and 2e-6.</p>
+<h2>How it relates to adaptive decomposition</h2>
+<p>GenMem has the closest-to-evolvable structure of the harness papers here, but its decomposition is on the memory side, not the problem side. MemEvolver autonomously chooses insert/revise with retention, consolidation, and deletion — consolidation is the memory analogue of &quot;fusing working components&quot; — and it targets update addresses itself. But the address hierarchy is fixed by human-chosen RQ-KMeans codebooks: the agent never discovers its own decomposition, never allocates independent search budgets to subproblems, never splits a failing component into finer pieces or reverts to a monolithic state. The symbolic composition/decomposition cases in §5 are post-hoc judged demonstrations of SID compositionality, not a runtime mechanism for discovering problem structure. Fixed action set of memory operations, learned policy for when to apply them, but a human-designed, frozen decomposition.</p>
+<h2>Limits and open questions</h2>
+<p>Two limitations the authors admit: leaf codebooks attract disproportionate traffic (uneven utilization), and cold-start noise in early trajectories propagates into the SID space — suggesting adaptive codebook reallocation and background revisit policies. Online evolution is scored against reference answers (never shown to the updater, but still requiring ground truth at stream time), which limits deployment to verifiable domains. The address space is frozen: as genuinely new task families arrive, no new top-level symbols can be born, so capacity is bounded by the offline codebook choice. Next probe: test compositionality at scale — is SID composition reliable beyond the qualitative cases, and can SIDs actually serve as first-class orchestration tokens in long multi-tool workflows, as the authors speculate? Also probe whether a frozen addressing scheme degrades over very long streams where functional regions shift meaning.</p></div>
+<div class="nav"><span><a href="2609.34069.html">← Day 22: Towards Certificate-Driven Software Porting: A Self-Improvin</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.34649.html">Day 24: Beyond Skill Evolution: Self-Evolving Context Management Pol →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

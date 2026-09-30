@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calibrated Decision Models for Autonomous Penetration-Testing Harnesses: JEV and Laya as System One Decision Layers for LLM-Driven Pentest Agents — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>Calibrated Decision Models for Autonomous Penetration-Testing Harnesses: JEV and Laya as System One Decision Layers for LLM-Driven Pentest Agents</h1>
+</header>
+
+<div class="kicker">Day 29 · Oct 28, 2026</div>
+<h1 style="margin-top:6px">Calibrated Decision Models for Autonomous Penetration-Testing Harnesses: JEV and Laya as System One Decision Layers for LLM-Driven Pentest Agents</h1>
+<p class="meta">Joas Antonio dos Santos Barbosa · published 2026-09-24 · <a href="https://arxiv.org/abs/2609.28940">arXiv:2609.28940</a></p>
+<p><span class="badge rel2">context</span></p>
+<div class="card"><h2>One line</h2>
+<p>A position/architecture paper arguing that pentest agent harnesses should replace free-form LLM judgment at key decision points with &quot;System One&quot; models — small, non-generative, probabilistically calibrated classifiers (Jev, Laya) — and reporting one exploratory case study.</p>
+<h2>The problem</h2>
+<p>Pentest harnesses use the same generative LLM for both producing findings (recon, exploits) and adjudicating them (is this a real finding? how severe? which agent next?). That coupling causes three pathologies: calibration collapse (confidence doesn&#x27;t track truth), class-driven severity (SQLi = Critical by default, regardless of demonstrated impact), and compute waste (LLM reasoning spent on surfaces a classifier could dismiss in milliseconds). The author frames this as an <em>assurance</em> gap distinct from the capability gap the field usually measures.</p>
+<h2>How it works</h2>
+<p>Four formalized decision points where a System One model replaces generative judgment with a typed, auditable verdict: <strong>DP1 finding adjudication</strong> (is the finding real?), <strong>DP2 severity recalibration</strong> (severity from demonstrated impact, not vuln class), <strong>DP3 agent pruning</strong> (which agents/surfaces to pursue), and <strong>DP4 confirmation loops</strong> (has the finding been confirmed?). A System One model is defined as a non-autoregressive classifier that evaluates typed questions against a state and returns structured, calibrated verdicts — Kahneman&#x27;s fast/bounded judgment vs. slow deliberative reasoning. The paper surveys the landscape: TypeSafe&#x27;s proprietary Jev family (incl. browser-optimized Jev-Ultrafast) and the open-source Laya, reports their published specs without cross-benchmark extrapolation, analyzes training paradigms (RLHF, RLAIF, RLCD, RLHV) for trust implications, and sketches &quot;Rave&quot; — a domain-adapted System One variant fine-tuned on offensive-security decision distributions — as future work. The one empirical datapoint: a single-run comparison of the open-source Rust harness NeuroSploit with vs. without Jev against a 13-vulnerability web target, showing differences in severity distribution, wall-clock time, and data-type-aware grading.</p>
+<h2>Key results</h2>
+<p>Mostly architectural/formalization contributions — the paper is explicit (Table I) about what is implemented, measured, or merely proposed. The NeuroSploit case study is a single run with vs. without Jev; the author states plainly it &quot;motivates the architecture but does not constitute a controlled experiment with statistical power.&quot; Concrete reported observations (single run, 13-vuln target): differences in severity distribution, wall-clock runtime, and grading by exposed data type. Jev vs. Laya comparison is spec-reported, not measured. Note: this is a single-author independent-researcher paper; the Jev/Laya performance claims are vendor-published specs, not independently verified here. (Source: full paper, pages 1–4.)</p>
+<h2>How it relates to adaptive decomposition</h2>
+<p>The decomposition here is <strong>fixed and human-designed</strong>: four decision points hand-placed by the author into a pentest pipeline. Nobody discovers them; the agent doesn&#x27;t split, fuse, or re-budget anything. But the underlying <em>design principle</em> resonates: put the right kind of computation at each decision point (fast calibrated classifier for adjudication, slow deliberative model for exploitation) rather than one monolith everywhere. That&#x27;s a decomposition argument — just a static one. For adaptive decomposition, this paper is a worked example of the kind of component structure an agent <em>could</em> discover on its own, and a caution: the four decision points look suspiciously like the &quot;monolithic fallback&quot; problem in reverse — a human asserting the right granularity a priori. The interesting question the paper doesn&#x27;t ask: could a harness optimizer <em>learn</em> where System One layers belong?</p>
+<h2>Limits and open questions</h2>
+<p>One run, one target, no statistics — the empirical core is anecdotal by the author&#x27;s own admission. The System One models&#x27; specs are taken from vendors; Jev is proprietary and its calibration claims aren&#x27;t independently tested in this domain. The four decision points are asserted, not derived — is that the right set, and is DP3 (agent pruning) actually safe to delegate to a fast classifier? The sketched Rave model is future work with no training yet. Open: what happens when the System One layer is <em>wrong</em> — a false negative at DP1 drops a real finding silently, and the paper doesn&#x27;t quantify that failure mode.</p></div>
+<div class="nav"><span><a href="2609.28585.html">← Day 28: Persistent Billable State: Denial-of-Wallet Attacks and Defe</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.29095.html">Day 30: Where Does Exactly-Once Live? Model, Harness, and Tool-Contr →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harness Tokenomics: A Router for the Enterprise Agentic Control Plane — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>Harness Tokenomics: A Router for the Enterprise Agentic Control Plane</h1>
+</header>
+
+<div class="kicker">Day 35 · Nov 03, 2026</div>
+<h1 style="margin-top:6px">Harness Tokenomics: A Router for the Enterprise Agentic Control Plane</h1>
+<p class="meta">Ted Kwartler, Alan Aqrawi, Arian Abbasi · published 2026-09-24 · <a href="https://arxiv.org/abs/2609.28919">arXiv:2609.28919</a></p>
+<p><span class="badge rel1">background</span></p>
+<div class="card"><h2>One line</h2>
+<p>Builds a cache-aware model router for enterprise AI coding-agent harnesses that sends each session, side task, and subagent to the cheapest capable model without forcing a running conversation to rebuild its prompt cache — recovering 13–21% of model spend.</p>
+<h2>The problem</h2>
+<p>Enterprises are rolling out vendor-bundled coding-agent harnesses (Claude Code, Codex, etc.) to tens of thousands of employees, but the harness decides which model answers, what it reads, how the prompt cache is used, and which subagents run — so it picks the rate on the price sheet and sets the volume bought at it, leaving enterprises with an unauditable bill and four risks: price coupling to one vendor, uninspectable closed code, non-portable governance, and novices getting half the results for the same spend. Chat-style per-request routers fail inside a harness because one user turn is many API requests over a prompt cache that belongs to a single model — moving a turn to another model pays to rebuild the cache.</p>
+<h2>How it works</h2>
+<p>The router has eight specified components (the decision engine — components 2–6 and 8 plus the override rule of 7 — is prototyped; the live gateway and user-facing routing view are specified but not built). A classifier (Jev, ~$0.04/M input tokens, ~250 ms median latency) labels every prompt against a bring-your-own taxonomy of six typed questions: action (13 options), domain (12), complexity (trivial/routine/complex/expert), context (none/artifact/history/external), stakes-high (yes/no), and names-a-model (yes/no) — returning calibrated per-option probabilities, not a single label, so the policy can compute P(tier suffices) and P(turn is history-independent) and hold the turn when either is below 0.80. Routing happens only at cache-safe points: model choice at session start, a detached request, a &quot;ledger side lane&quot; (small task runs on a cheaper model seeded from a project ledger, followed by one empty request to refresh the home cache), and subagent launches — never mid-turn. A payback rule tells when a mid-task switch earns back its cache writes (e.g., Opus 5→Sonnet 5 pays after 27 requests with return, 8 without; Fable 5.1→Sonnet 5 after 291/46). The paper also derives a crossover: because Fable 5.1&#x27;s cache-read price is $0.25/M vs Opus 5&#x27;s $0.50/M, the top model costs less on long tool-heavy sessions above 71k context tokens (18 tool steps/turn). Corrections (over a third of the bill) are never downgraded (rule R10), per-user productivity metrics are deliberately excluded from the design (EU AI Act risk), and counterfactual accounting reports cost vs. pinning, aggregated by unit, never by person.</p>
+<h2>Key results</h2>
+<ul>
+<li>Emulated 10,000-seat enterprise (46 authored scenarios/109 turns × 200 Monte Carlo variants, behavior from ~10,000 real Claude Code sessions): as-is spend $2.03M/month ($24.4M/year, $41/engineer/day); routed spend $1.76M with today&#x27;s labels and $1.61M with perfect labels → 13.4%–20.8% saved, $3.3M–$5.1M/year.</li>
+<li>Crossover confirmed by repricing real sessions: 51% (TraceLab) / 80% (SWE-chat) of sessions costing ≥$100 on Opus 5 are cheaper on Fable 5.1; three-quarters of the total saving comes from the crossover ($198k/month of the $271k/month net saving).</li>
+<li>Classifier accuracy on the corpus: action 74%, domain 80%, complexity 63%, history-dependence 82%; 12.5% of moved turns were false downgrades (redone as correction chains), 42% of routable turns held for uncertainty — holds cost only money, misroutes cost quality.</li>
+<li>Threshold 0.9 beats 0.8 slightly (13.7% saving) but 0.8 kept to avoid tuning on the test set; dropping to 0.5 lowers saving to 10% (misroutes eat the gains).</li>
+<li>Sensitivities: 5-minute cache expiry and pauses matter as much as the classifier (saving 23% with no pauses, 8% for pause-heavy users; a 1-hour cache lifts saving to 15.5%); without a Fable 5.1 license saving falls to 3.1%.</li>
+<li>Vendor lock-in priced: on real sessions, other vendors&#x27; strong models cost 0.12–0.80× Opus 5 (DeepSeek V4 Pro 0.12–0.14, GPT-5.6 Sol 0.80), though ceilings assume equal quality and token use.</li>
+</ul>
+<h2>How it relates to adaptive decomposition</h2>
+<p>Barely. The router does not decompose anything: the six-question taxonomy, the tier policy, the floors, and the execution modes (session-start, side lanes, subagent launch) are all human-authored and fixed; the &quot;evolution&quot; is a human tuning thresholds per function, not the agent discovering structure. There is no splitting of problems into subproblems, no independent search budgets, no parallel component improvement, no fusion, no revert-to-monolith logic. The closest cousin is rule R10&#x27;s conservative &quot;hold when unsure&quot; stance and the correction-rate feedback the authors propose for future tuned models — but both are static safeguards, not self-modification. The one thread genuinely useful to adaptive decomposition is its cache economics: any harness self-improvement loop that forks side lanes or subagents pays cache-rebuild costs, and this paper gives the exact payback arithmetic for that.</p>
+<h2>Limits and open questions</h2>
+<p>Everything rests on an emulation, not a live deployment: the 46 scenarios/109 turns are author-written, their ground-truth tags come from the authors alone, and the taxonomy has no inter-rater agreement or ablations yet. The enforcement gateway and live user interface are specified but unbuilt — every result runs in the simulator, and &quot;perfect labels&quot; assume a step-function capability model (right tier always succeeds, below always fails), so 21% is a ceiling, not a target. Prices and cache rules move fast (all Anthropic list prices of 21 Sep 2026), and under a uniform 0.1× cache-read regime the crossover disappears and the saving drops to 6%. Open: does a learned per-function taxonomy transfer across enterprises; how much of the saving survives contract discounts; and whether correction chains — the costliest failure mode — could be routed on predicted, not observed, corrections.</p></div>
+<div class="nav"><span><a href="2609.28559.html">← Day 34: Who Is Behind the Harness? Fingerprinting LLMs through Agent</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.29251.html">Day 36: Policy as Code: A Coroutine-Bridge Harness for Fast-Reasonin →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

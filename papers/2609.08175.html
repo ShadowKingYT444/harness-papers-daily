@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Theory of Reliable Self-Evolution for Agent Harnesses — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>A Theory of Reliable Self-Evolution for Agent Harnesses</h1>
+</header>
+
+<div class="kicker">Day 13 · Oct 12, 2026</div>
+<h1 style="margin-top:6px">A Theory of Reliable Self-Evolution for Agent Harnesses</h1>
+<p class="meta">Qianshu Cai, Yonggang Zhang, Jun Nie, Maohao Ran, Huajiang Zheng, Jun Song, Xinmei Tian, Yike Guo, Wei Xue · published 2026-09-08 · <a href="https://arxiv.org/abs/2609.08175">arXiv:2609.08175</a></p>
+<p><span class="badge rel3">relevant</span></p>
+<div class="card"><h2>One line</h2>
+<p>A theoretical framework that answers when a self-modified harness can be safely adopted — deriving a sufficient condition (failure-task gains must outweigh possible retained-task losses plus estimation error) and a two-gate validation rule with high-probability guarantees that adopted updates strictly improve expected reward over the user-task distribution.</p>
+<h2>The problem</h2>
+<p>Harness self-evolution systems (Gödel Agent, DGM, HGM, MOSS) let an agent rewrite its own prompts, code, tools, and orchestration while the underlying LLM stays frozen, and several show big gains on the failed tasks that motivated each change. But a fix that helps on failures can silently degrade tasks the agent previously handled — aggregate improvement is not automatic. The paper asks: under what checkable condition can a self-evolved harness be <em>reliably adopted</em>, i.e., guaranteed to raise expected reward over the full user-task distribution, not just the failures it targeted?</p>
+<h2>How it works</h2>
+<p>The setup: at step k the agent is A_k = (M, C_k), a frozen LLM M plus an evolvable harness C_k (prompts, code, tools, orchestration). The agent generates candidate modifications c from failures and interaction history; each yields a candidate agent A_k ⊕ c. Adoption is safe if J_user(A_k ⊕ c) &gt; J_user(A_k), where J_user is expected reward over the user-task distribution D_user.</p>
+<p>The core move is decomposing the total expected-reward change into two pieces. A binary failure detector ϕ(t,o) splits the task distribution into an induced failure-task distribution D_F,k and retained-task distribution D_R,k (weighting tasks by the current agent&#x27;s per-task failure probability ψ and overall failure rate Z_k). Then the overall gain equals the failure-task contribution L_k(c) plus (1 − Z_k) times the mean reward change on retained tasks. A modification is <em>qualified</em> if its failure-task contribution L_k(c) ≥ λ and its mean absolute retained-task change D_k(c) ≤ δ. Theorem 1 proves the gain is at least L_k(c) − (1 − Z_k)δ, so Corollary 1: setting λ &gt; (1 − Z_k)δ guarantees strictly positive gain for every qualified modification (choose λ = γ + (1 − Z_k)δ for gain ≥ γ).</p>
+<p>Because true quantities are unobservable, the paper gives Rule 1 (Two-Gate validation): adopt c iff the validation-set estimates satisfy L̂_k ≥ τ, D̂_R ≤ δ, and Δ_k := τ − ε_L − (1 − Ẑ_k + ε_Z)(δ + ε_D) &gt; 0, i.e., a positive lower bound on gain after subtracting estimation errors. Theorem 2: the probability of adopting a candidate whose true gain falls below Δ_k is ≤ β_step,k. From there: Theorem 3 bounds the probability that a pool of N generated candidates yields an adoptable one — (1 − β_stat)[1 − (1 − P_k^+)^N] ≤ R ≤ 1 − (1 − P_k)^N, where P_k is the <em>reachability</em> (probability generation produces a qualified modification); Theorem 4 shows guaranteed per-step gains Δ_k accumulate across K steps with probability ≥ 1 − β_run even though steps depend on each other.</p>
+<p>Two extensions matter. First, the ceiling: Two-Gate treats the full allowed retained-task change δ as a possible loss, so Corollary 2 shows it cannot validate improvement once J_user(A_k) ≥ 1 − (1 − Z_k)δ − ε_Σ. Rule 2 (Measured-margin) replaces the worst-case δ with the candidate&#x27;s own <em>measured</em> retained-task decrease D̂_R^−, validating beyond the original ceiling (Proposition 19 constructs cases where it does). Second, validating small gains near the reward ceiling gets expensive: Theorem 5 proves any level-β validation procedure needs expected cost Ω(Z/u) candidate runs to distinguish a gain of u/2 from a loss of u/2 when remaining gap is u. Section 5 adds a diagnostic: estimate reachability from extra audit data with uniform confidence bounds (Theorem 6) to tell apart &quot;generation rarely produces qualified mods&quot; from &quot;validation lacks evidence&quot; — applied to DS-1000 (see results).</p>
+<p>To reimplement the core idea: (1) sample a validation task set; label each task as failure or retained using the current agent&#x27;s outcomes; (2) run current agent and candidate agent on both groups with repeated runs; (3) estimate failure-task contribution L̂, mean absolute retained-task change D̂, and failure rate Ẑ with confidence bounds (Hoeffding/empirical-Bernstein); (4) adopt iff L̂ ≥ τ, D̂ ≤ δ, and τ − ε_L − (1 − Ẑ + ε_Z)(δ + ε_D) &gt; 0 with τ chosen so the margin exceeds (1 − Ẑ)δ. Refresh reference (retained-task) data after each adoption, since D_R,k is redefined against the new current agent.</p>
+<h2>Key results</h2>
+<p>This is a theory paper; the main results are theorems (conditions, guarantees, ceilings, cost lower bounds), not benchmark numbers. The one empirical illustration is a DS-1000 experiment with persistent Python solver-harness modifications and a fixed LLM: three generation processes each produced 96 outputs in 24 pools (four contexts), evaluated on 56 audit tasks per context at target T_0 = (0.05, 0.50). Independent generation: 38.5% of outputs met the audit target (90% bootstrap CI [0.135, 0.646]) but only 2/96 were validated and 2/24 pools adopted anything. Label-free revision: 26.0% met target, 0/96 validated. Outcome-feedback revision: 34.4% met target, 0/96 validated. Retrospective analysis on one unadopted outcome-feedback candidate gave 95% joint bounds L ≥ 0.0550, D ≤ 0.2766, Δ ≥ 0.0556 on the fixed audit set — its original validation lower bound for L was 0.0378 (below the 0.05 bar), diagnosing <em>insufficient validation evidence</em>, not generation failure, as the stall cause. No accuracy/score numbers beyond these fractions are given; all other claims are formal bounds.</p>
+<h2>How it relates to adaptive decomposition</h2>
+<p>The paper does not decompose the harness at all: evolution is monolithic — a candidate modification c rewrites any part of prompts/code/tools/orchestration and is adopted or rejected wholesale as A_k ⊕ c, with a single scalar gate on total retained-task change. There is no splitting into subproblems, no parallel component search, no fusion or fission of components, and no revert-to-monolithic mechanism; the decomposition is absent, not fixed. The action set is evolvable (free-form code/prompt rewrites), which matches adaptive decomposition&#x27;s spirit of open-ended structural change, but the theory only constrains <em>adoption</em>, never the search itself. It is directly complementary: an adaptive-decomposition system could use this two-gate rule as its adoption criterion (λ, δ on failure-gain vs. retained-change, measured per-component or globally) to guarantee that each accepted split/fuse/revert step raises overall expected reward, addressing the exact &quot;local improvement, global regression&quot; risk that decomposition systems face. Relevance 3: central to reliable recursive harness self-improvement, but the mechanism is orthogonal to decomposition itself.</p>
+<h2>Limits and open questions</h2>
+<p>The guarantees hold only under a fixed user-task distribution and fixed reward; distribution drift gets a total-variation correction in the appendix, but it requires bounding drift <em>before</em> deployment, which is hard in practice. Reward ≠ user utility: transferring guarantees to utility needs a bounded reward–utility discrepancy. The cost analysis (Theorem 5) shows validating improvements near the ceiling demands ever more evaluation runs, so the theory may stall exactly when gains matter most unless Rule 2-style measurement or smarter budget allocation is used. Open: use the reachability diagnostics to <em>guide</em> generation (not just diagnose); characterize when adopted updates preserve future improvement opportunities (flagged as future work); and extend task-group protection (Appendix B.2) to finite-sample estimation guarantees.</p></div>
+<div class="nav"><span><a href="2607.17979.html">← Day 12: Harness Engineering for LLM-Driven GPU Kernel Generation</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.26781.html">Day 14: Agensh: Scaling Organizational Intelligence to 1,024 Agents →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

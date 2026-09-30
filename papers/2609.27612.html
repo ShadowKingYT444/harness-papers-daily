@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RegenHarness: A Robot Agent Harness with Evidence-Gated Recursive Self-Improvement — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>RegenHarness: A Robot Agent Harness with Evidence-Gated Recursive Self-Improvement</h1>
+</header>
+
+<div class="kicker">Day 16 · Oct 15, 2026</div>
+<h1 style="margin-top:6px">RegenHarness: A Robot Agent Harness with Evidence-Gated Recursive Self-Improvement</h1>
+<p class="meta">Kailin Wang, Haoxiang Jie, Yaoyuan Yan, Zhiyou Heng, Zhaosong Li · published 2026-09-23 · <a href="https://arxiv.org/abs/2609.27612">arXiv:2609.27612</a></p>
+<p><span class="badge rel3">relevant</span></p>
+<div class="card"><h2>One line</h2>
+<p>An evidence-gated robot-agent harness for quadruped missions that strictly separates model proposals from verified task progress (observed facts vs. committed facts, with an identity-bound commit gate), plus a cross-mission recursive self-improvement protocol that revises harness configuration under fixed regression checks with versioned rollback.</p>
+<h2>The problem</h2>
+<p>Long-horizon robot execution conflates three distinct things — a model&#x27;s proposal, a controller&#x27;s termination signal, and verified task completion — so a robot can &quot;finish&quot; without actually doing the work (e.g., reaching a waypoint proves arrival, not that an inspection happened). Long stage chains fail multiplicatively, and once an early false-positive completion enters the task record, every downstream decision is corrupted. Existing embodied runtimes either let a planner&#x27;s claim become progress directly or couple verification to specific policies; the authors argue the missing piece is an explicit systems contract specifying which component may change trusted task state, which evidence each role may see, and how a self-improving harness revises itself without weakening its own safety gates.</p>
+<h2>How it works</h2>
+<p>A task becomes a contract T=(g, G, Cg, S, R): an acyclic dependency graph G of subgoals plus completion conditions, safety/resource constraints, and recovery budgets. Each node declares target effects, eligible capability classes, preconditions, postconditions, evidence policy, and recovery limits. State is split into observed facts O_k (provenance known, meaning unverified) and committed facts C_k (admitted only by the verification path). A context compiler builds four role-isolated views from versioned memory — C1 planner (what next), C2 skill (how to execute this node), C3 verifier (did the effect occur; planner completion claims are excluded), C4 recovery (what bounded response is justified) — so a planner&#x27;s text &quot;the cup is grasped&quot; can guide C2 but can never become evidence in C3. Execution produces an evidence packet Z_k=(I, k_ctx, O_before, O_after, P, Delta-b_k) with identity, timestamps, checksums, and confidence; verdicts are satisfied/violated/ambiguous/stale/unsafe, and only an identity- and version-matched satisfied verdict may atomically advance the node and trusted facts: controller done does not imply node success does not imply goal success. Recovery maps failure classes to an ordered escalation ladder (re-perceive, replan, switch skill, safe stop) with per-action and total budgets, and repeats of a failed action without new evidence can be deterministically prohibited. Skill routing ranks capability-card providers with a configurable weighted score over predicted success, risk, uncertainty, latency, cost, and historical-failure penalty (inspectable, not itself an execution authority), with idempotent dispatch keys and time-bounded resource leases. The cross-mission RSI loop takes configuration version H_j and its mission records D_j; a revision generator produces a candidate H-tilde_j with a change manifest; a fixed regression set R_j (nominal tasks plus stale-evidence, duplicate-request, interrupted-run, and resource-conflict cases) and an acceptance predicate A (safety/evidence contracts preserved, no regression on designated checks, improvement on a predeclared target metric, release authorization) decide the release; the updater has no permission to weaken A, the commit gate, or safety interlocks; approved revisions go live only at mission boundaries and rollback is to the last accepted version. No online model-weight updates occur anywhere.</p>
+<h2>Key results</h2>
+<p>The paper is a systems paper with deployment evidence, not a benchmark study; it reports per-mission measurements, and the RSI protocol itself has no empirical improvement numbers — Section 6.8 defines only the assessment protocol (comparing frozen vs. accepted harness versions on false completion, recovery cost, regression failures, and release overhead), with no RSI evaluation results reported. The main deployment is a real quadruped voice-triggered warehouse inspection: one spoken request executes 7 linked stages (voice ASR, navigate A-to-B, panoramic capture of 8 images, Qwen3-VL-Plus visual analysis finding boxes blocking a passage, DingTalk image+text delivery with receipts, return, spoken report), over 17.62 m reference routes each way with 0.11 m outbound and 0.17 m return arrival error, a 259.94 s mission (271.22 s full voice turn), all stages linked by shared mission identifiers, transcript checksums, and image checksums. A second circuit case (18.83 m, start and goal coinciding) demonstrates history-dependent completion: the robot starts 0.23 m from the goal, already inside the 0.40 m arrival tolerance, yet must traverse the full circuit (6.20 m max excursion) before completion counts — endpoint proximity alone would have falsely completed the task. A text-driven camera task documents model-proposed decomposition on real sensor data. No controlled A/B numbers against a baseline harness are given.</p>
+<h2>How it relates to adaptive decomposition</h2>
+<p>Decomposition here is real but fixed and human-designed, not discovered: the task contract&#x27;s dependency graph G, the node capability classes, and the four context roles C1-C4 are configured up front; the agent fills and executes that structure, and the RSI loop tunes configuration parameters (context-selection rules, task templates, routing preferences, recovery policies) within it. There is no mechanism for the agent to split a subproblem, assign independent search budgets, improve components in parallel, split failing components further, fuse working ones, or revert to monolithic state — the structure is an evolvable-in-parameters but not evolvable-in-shape scaffold. The closest adaptive-decomposition cousin is the bounded recovery escalation (C4), which routes a failing node through an ordered ladder of alternatives under budgets — a fixed local repair policy rather than structural re-decomposition. Versioned rollback at mission boundaries is the nearest analog to &quot;revert when things disagree,&quot; but it operates on whole configurations between missions, not on component decompositions.</p>
+<h2>Limits and open questions</h2>
+<p>The headline RSI contribution is specified but never empirically evaluated — no revision was actually generated, tested, or released in the reported work, so the acceptance predicate, regression set, and rollback machinery are untested claims, and the revision generator&#x27;s identity (which model writes the change manifest?) is unspecified. The evaluation protocol&#x27;s ablation (removing evidence binding, role-isolated contexts, or bounded recovery) is defined but not executed, and there are no controlled comparisons against a baseline harness. The reference runtime is single-host Python/SQLite with ROS 2 adapters; multi-robot use needs transactional external leases and clock contracts, and cancellation currently assumes synchronous cancel(). Deployment evidence is one office/entrance site and navigation-plus-inspection tasks only; semantic correctness still needs independent adjudication when sensors or models share errors. Open probes: run the defined ablation and RSI comparison to see whether evidence gating measurably reduces false completion, and whether a revision generator can improve recovery cost without weakening the gates it is forbidden to touch.</p></div>
+<div class="nav"><span><a href="2609.26891.html">← Day 15: Harness as a Language: A Minimalist Agent Framework With Max</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.29204.html">Day 17: AdaHVLA: Adaptive Harnesses for Long-Horizon Vision-Language →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

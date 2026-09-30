@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RACaP: Agentic Reasoning, Acting, and Coding as Policies for Evolvable Robot Learning — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>RACaP: Agentic Reasoning, Acting, and Coding as Policies for Evolvable Robot Learning</h1>
+</header>
+
+<div class="kicker">Day 18 · Oct 17, 2026</div>
+<h1 style="margin-top:6px">RACaP: Agentic Reasoning, Acting, and Coding as Policies for Evolvable Robot Learning</h1>
+<p class="meta">Zexi Li, Yehang Zhang, Haojian Huang, Bohan Zhou, Wenqian Li, Chenxu Wang, Yifan Chang, Yangkai Wei, Tianyi Zhang, Ying-Cong Chen, Kaiwen Zhou, Yinchuan Li, James Cheng · published 2026-09-24 · <a href="https://arxiv.org/abs/2609.29394">arXiv:2609.29394</a></p>
+<p><span class="badge rel3">relevant</span></p>
+<div class="card"><h2>One line</h2>
+<p>Separates evolution-time coding from runtime decisions: before deployment it evolves typed Policy APIs (pickplace, insert, stack, push, articulate, actuate_control), a ReAct agent harness, and experience memory through a two-phase curriculum-then-autonomous evolution loop; at runtime a frozen-API ReAct agent just steers exposed arguments.</p>
+<h2>The problem</h2>
+<p>Code-as-Policies methods generate and repair robot programs <em>at runtime</em> — one coding iteration takes 6.8–23.8 s, a multi-turn trial 60.8–113.6 s, and generated code often hard-codes task-specific coordinates and recovery decisions that don&#x27;t transfer. Prior self-improving CaP systems (RATS, ASPIRE) keep runtime code generation and have play-time or fixed-distance objectives that don&#x27;t transfer to downstream tasks. The core question: how should a system divide evolution-time code from runtime decisions so it keeps evolving, transfers across tasks, and still adapts to the current scene?</p>
+<h2>How it works</h2>
+<p><strong>Evolution (offline):</strong> Three components evolve together — typed Policy APIs (each owning one bounded physical mechanism, e.g. <code>insert</code> with revisable args like place_margin, grasp, yaw_deg), the ReAct agent harness, and experience-based long-term memory. Phase 1 is <strong>capability curriculum learning</strong> (builds reliable execution, recovery, skill breadth, orchestration). Phase 2 is <strong>autonomous self-evolution</strong>: failures are selected, a visual critic + coding agent proposes changes (code diffs like place_margin 0.05→0.03, grasp None→&quot;pinch&quot;), and <strong>paired rollouts</strong> (champion vs. candidate on the same task cohort) decide promotion — a candidate promotes only when paired gains exceed paired regressions (compile → test → regression gate → WIN/PROMOTE or LOSE/ARCHIVE). <strong>Execution (runtime):</strong> source code is frozen; the ReAct agent uses visual observations and perceptual feedback to select APIs, revise arguments, retry, and decide stopping — task decomposition, API selection, and recovery are owned by the runtime agent, while each Policy API owns one bounded mechanism.</p>
+<h2>Key results</h2>
+<ul>
+<li>LIBERO-90 in-domain: 54.4% success; zero-shot LIBERO-PRO transfer: 45.0%; LIBERO-Long: 46.0% vs at most 4.0% for CaP baselines.</li>
+<li>On LIBERO-PRO: 2.5× the success rate of the strongest CaP baseline with 1.9× speedup in median policy time.</li>
+<li>Distilling ReAct decision traces (GPT-5.6 → Qwen3-VL-8B-Instruct via rejection-sampled fine-tuning): 13.2× per-decision inference speedup; repeated physical calls drop from 16 to 4.</li>
+</ul>
+<h2>How it relates to adaptive decomposition</h2>
+<p>RACaP has the <em>shape</em> of adaptive decomposition&#x27;s component layer — a fixed set of typed mechanisms (Policy APIs) each owning one bounded behavior, evolved and selected independently with paired-rollout evidence, promoted or archived like a population. But the decomposition itself is human-designed and frozen: the six APIs are typed by the authors, and the agent never splits a failing API into finer mechanisms, fuses working ones, or gives components independent search budgets with a global fallback. Evolution mutates implementations, not structure. The most transferable idea: the champion-vs-candidate paired-rollout promotion gate with explicit regression checking is exactly the kind of rigorous accept/reject criterion an adaptive-decomposition system would want for component-level changes.</p>
+<h2>Limits and open questions</h2>
+<p>The fixed typed API set is the ceiling: if a task needs a mechanism outside the six, the system can&#x27;t invent it. The evolution stage is offline and presumably expensive (no budget numbers given). Distillation is one-way (teacher → student) with no feedback loop. Open: what happens when the visual critic misjudges a physical failure — does the regression gate catch it, or do bad mechanisms get promoted on biased cohorts? And could the <em>API boundary design</em> itself (what counts as one &quot;mechanism&quot;) become evolvable?</p></div>
+<div class="nav"><span><a href="2609.29204.html">← Day 17: AdaHVLA: Adaptive Harnesses for Long-Horizon Vision-Language</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.29892.html">Day 19: Qwen-Planner-Agent: A Closed-Loop AI-for-AI Framework for Re →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

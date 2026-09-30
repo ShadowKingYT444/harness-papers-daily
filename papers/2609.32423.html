@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PluginRSI: Recursive Improvement of Agent Harnesses with Reusable Plugins — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>PluginRSI: Recursive Improvement of Agent Harnesses with Reusable Plugins</h1>
+</header>
+
+<div class="kicker">Day 1 · Sep 30, 2026</div>
+<h1 style="margin-top:6px">PluginRSI: Recursive Improvement of Agent Harnesses with Reusable Plugins</h1>
+<p class="meta">Yaorui Shi, Yuchun Miao, Yuxin Chen, Jiayuan Zhang, Yueqing Sun, Xierui Song, Xiang Wang, An Zhang · published 2026-09-26 · <a href="https://arxiv.org/abs/2609.32423">arXiv:2609.32423</a></p>
+<p><span class="badge rel5">core mechanism</span></p>
+<div class="card"><h2>One line</h2>
+<p>Represents a harness as a set of atomized, independently-improvable plugins plus a coordination workflow, and runs recursive optimization at the plugin level so good mechanisms accumulate in a reusable library.</p>
+<h2>The problem</h2>
+<p>Prior harness optimizers (DGM, Meta-Harness) search over complete harness programs, which couples multiple mechanisms together: a good rewrite can overwrite a locally-good mechanism, and improvements can&#x27;t be isolated or reused across iterations. So the search keeps converging to similar designs instead of accumulating knowledge. PluginRSI&#x27;s answer: make the plugin — not the whole harness — the unit of evolution.</p>
+<h2>How it works</h2>
+<p>A plugin is a harness mechanism with a standardized interface: a YAML spec (input/output schemas, prompts, rubrics, config metadata) plus an executable Python implementation. A harness is H = H(W, P): a workflow W that coordinates execution, plus a selected plugin set P (the paper starts from a 75-plugin library implementing roles, tools, skills, memory). Each iteration has two stages:</p>
+<p class='num'>1. <strong>Plugin mutation</strong>: N mutation candidates are explored <em>in parallel</em> on balanced minibatches of validation tasks (equal correct/incorrect examples per minibatch, varied feedback for diversity). For each, the proposer agent picks one plugin in the current harness, rewrites just that plugin while the workflow and all other plugins stay fixed, recompiles, and evaluates on its minibatch. Variants that improve the score are added to the shared plugin library.</p>
+<p class='num'>2. <strong>Harness recomposition</strong>: the proposer selects a new plugin set from the updated library and revises the workflow W to coordinate them, then evaluates the recompiled candidate on the validation set. Adopt if better.</p>
+<p>The library is the key: empirically beneficial plugins persist and get reused in later iterations and even new tasks (reusing an evolved library hits 69% held-out resolve vs 65% without). Policy model and proposer stay frozen throughout.</p>
+<h2>Key results</h2>
+<ul>
+<li>SWE-bench Verified held-out: 65.00% (GPT-5.6 Terra proposer) and 69.00% (Kimi-K3 proposer) — 6–10 pp over Meta-Harness, the best baseline; gains larger on held-out than held-in.</li>
+<li>Harnesses transfer across solver models without re-optimization (e.g., Kimi-optimized harness gets 64% on GPT-5.6 Terra and GLM-5.2).</li>
+<li>Terminal-Bench-2.1 held-out: 73.3% vs 66.7% for Meta-Harness; QA benchmarks overall accuracy 0.675 vs 0.638.</li>
+<li>Ablations: both stages contribute; it works even starting from only 4 basic plugins instead of the 75-plugin library. Reaching strong harnesses with fewer solver rollouts than Meta-Harness.</li>
+</ul>
+<h2>How it relates to adaptive decomposition</h2>
+<p>This is the closest published cousin to adaptive decomposition: it genuinely breaks a harness into independently-mutable components, evolves them in parallel, and accumulates the winners. But the decomposition is <strong>fixed and human-designed</strong>, not discovered by the agent: plugins are pre-atomized with standardized interfaces from a hand-built 75-plugin library, and mutation picks from a fixed set of known slots (one plugin at a time). There is no mechanism for the agent to split a failing plugin into finer pieces, fuse two working plugins, or discover a new decomposition of the harness on the fly — the atomization is a design decision the authors made, not an evolvable parameter. Adaptive decomposition&#x27;s core novelty — the agent <em>itself</em> deciding when and how to decompose — is absent.</p>
+<h2>Limits and open questions</h2>
+<p>The paper doesn&#x27;t say what happens when the true bottleneck cuts across plugin boundaries — a mechanism spanning two plugins would be hard to evolve piecemeal (this is exactly the coupling worry RLHarness raises about B/P/E). The initial 75-plugin library is hand-designed; the &quot;strong even without the library&quot; ablation is only from 4 basic plugins, so it&#x27;s unclear how much of the success is the search vs. good human engineering of the starting set. All results are on tasks where harness mechanisms are naturally separable; I&#x27;d probe whether recombination actually discovers novel workflows or mostly just picks good plugins (the workflow revision step is thinly analyzed).</p></div>
+<div class="nav"><span></span><span><a href="../index.html">All papers</a></span><span><a href="2606.05922.html">Day 2: Evolving Agents in the Dark: Retrospective Harness Optimizat →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

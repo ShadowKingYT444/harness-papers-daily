@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Persistent Billable State: Denial-of-Wallet Attacks and Defenses in Tool-Calling LLM Agents — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>Persistent Billable State: Denial-of-Wallet Attacks and Defenses in Tool-Calling LLM Agents</h1>
+</header>
+
+<div class="kicker">Day 28 · Oct 27, 2026</div>
+<h1 style="margin-top:6px">Persistent Billable State: Denial-of-Wallet Attacks and Defenses in Tool-Calling LLM Agents</h1>
+<p class="meta">Jinqian Zhang, Haojun Xia, Shujiang Wu, Jingkun Yue, Xia Zhang, Zhangpei Cheng, Bibo Tu · published 2026-09-23 · <a href="https://arxiv.org/abs/2609.28585">arXiv:2609.28585</a></p>
+<p><span class="badge rel2">context</span></p>
+<div class="card"><h2>One line</h2>
+<p>A security study of &quot;denial-of-wallet&quot; attacks: a compromised tool return gets retained in agent history and re-billed on every future model call, and the paper formalizes the host-side boundary that should govern what persists.</p>
+<h2>The problem</h2>
+<p>Tool admission decides whether a remote tool may be <em>called</em>; nothing governs whether its <em>return</em> may persist as future billed state. A malicious or compromised tool can return schema-valid, task-plausible but padded content; if the host retains it, every later model call reprocesses and re-bills it — one admitted return acquires recurring spending authority. The attacker needs no credentials and no runtime privilege. With full retention, even a 2–10-token trigger can kick off recursive rebilling whose cumulative input grows as O(N²).</p>
+<h2>How it works</h2>
+<p>The authors formalize the <strong>persistent billable-state boundary</strong>: the host&#x27;s decision over whether and how an external tool return enters later billable context. They derive six denial-of-wallet attack vectors and build <strong>DOW-BENCH</strong>, an end-to-end harness evaluated across six model families (243 executions), plus controlled history-policy reruns (Full retention vs. Drop vs. Compress) to isolate retention&#x27;s causal contribution to cost. For defense, they combine deterministic history transformation with four host-side invariants that bound (1) prompt mass, (2) context growth, (3) recursive opportunity, and (4) cumulative spend <em>before reingestion</em> — i.e., the enforcement point is pre-reingestion, at the moment a tool return is about to re-enter billable context. They validate on a 123-evaluation replay corpus and 24 Mistral Small 4 workflows, and scan 3,830 public MCP server/transport repos for existing safeguards.</p>
+<h2>Key results</h2>
+<p>Across 243 executions, the maximum per-session cumulative input-token Cost Amplification Factor reaches <strong>14,293×</strong> the session&#x27;s first-call input; 51/69 priced attack sessions cross a $0.10 circuit-breaker, with exposure up to $3.40 vs. a $0.025 benign maximum. Raw retention raises mean effective session cost by 21.2–35.9%. Compression preserves task success on 10/12 and 11/12 history-dependent tasks across two providers, vs. 2/12 under deletion — so dropping history is not a viable defense. The defense kernel &quot;contains&quot; every recurring attack in the 123-evaluation replay corpus; a progress-authorized policy gets 22/24 oracle-verified successes with no pre-completion interruptions vs. 13/24 under a fixed cap. Ecosystem scan: only 71 of 3,830 public MCP repos expose any code-visible safeguard proxy, none covering all four safeguard families. (Source: full paper, pages 1–6.)</p>
+<h2>How it relates to adaptive decomposition</h2>
+<p>Not a harness optimizer — no decomposition, no search, no evolution. The connection is through the <em>memory/context layer</em> that adaptive decomposition manipulates: if your mechanism splits components and gives them independent budgets, each component&#x27;s history policy becomes part of its fitness surface, and this paper shows retention policy has both a cost dimension (up to 35.9% session-cost inflation from raw retention) and a security dimension (attacker-controlled persistence). A decomposition scheme that evolves components in parallel without governing what each component retains is building on a compromised foundation. The &quot;four invariants&quot; framing is also a useful design pattern for adaptive decomposition&#x27;s own budgets: bound growth <em>before</em> reingestion rather than after the bill arrives.</p>
+<h2>Limits and open questions</h2>
+<p>The defense is host-side and deterministic — it doesn&#x27;t cover semantic attacks where the payload is genuinely task-relevant but subtly malicious (the paper positions this as complementary to instruction-takeover defenses). The six attack vectors are derived analytically; attacker adaptation against the four invariants isn&#x27;t evaluated. The ecosystem scan only counts code-visible proxies in public repos, which undercounts private deployments. Open: how do the invariants interact with legitimate long-horizon workflows that <em>need</em> large persistent state — is the progress-authorized policy&#x27;s 22/24 success rate the ceiling, and what breaks in the other 2?</p></div>
+<div class="nav"><span><a href="2609.27273.html">← Day 27: CAVEAT: Towards Robust Computer-Use Agents in Incentive-Misa</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.28940.html">Day 29: Calibrated Decision Models for Autonomous Penetration-Testin →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

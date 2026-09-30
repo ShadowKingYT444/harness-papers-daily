@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AutoSaddler: Automatic Harness Optimization with Durable Updates from Agent Execution Traces — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>AutoSaddler: Automatic Harness Optimization with Durable Updates from Agent Execution Traces</h1>
+</header>
+
+<div class="kicker">Day 4 · Oct 03, 2026</div>
+<h1 style="margin-top:6px">AutoSaddler: Automatic Harness Optimization with Durable Updates from Agent Execution Traces</h1>
+<p class="meta">Sungho Park, Wonjoong Kim, Rongyuan Tan, Jue Zhang, Wook-Shin Han, Pengfei Gao, Chanyoung Park, Yongqiang Yao, Rao Fu, Elsie Nallipogu, Qingwei Lin, Saravan Rajmohan, Dongmei Zhang · published 2026-08-24 · <a href="https://arxiv.org/abs/2608.23041">arXiv:2608.23041</a></p>
+<p><span class="badge rel4">highly relevant</span></p>
+<div class="card"><h2>One line</h2>
+<p>An offline harness-optimization loop that diagnoses failed agent trajectories, generates structured code-level patches to prompts/tools/middleware, and keeps only updates that generalize on a dev set.</p>
+<h2>The problem</h2>
+<p>Manual harness tuning is slow and expensive: you have to search a big space of prompts, tool configs, and runtime control logic, and every candidate needs costly multi-step rollouts to evaluate. Existing automatic harness optimizers (Meta-Harness, GEPA) either reflect shallowly on failures or edit the harness without restraint, so their updates don&#x27;t stick across new tasks. AutoSaddler wants harness updates that are <em>durable</em> — fixes that survive contact with unseen tasks.</p>
+<h2>How it works</h2>
+<p>Each iteration runs the current harness on a mini-batch of training tasks, then enters a <strong>Diagnosis–Patch session</strong>: a Diagnosis-Patch Agent gets the failed execution traces <em>and</em> the harness source code, progressively retrieves relevant trace details (to dodge long-context problems), forms root-cause hypotheses, and writes a <strong>structured patch</strong> Δθ. Patches are restricted to a fixed taxonomy of 3 categories × subtypes: Prompt patches (rule addition/modification), Tool patches (new tool, argument modification, implementation fix, description fix), and Middleware patches (pre-tool-use hooks, infra changes, agent-loop logic changes). Each subtype is labeled a <strong>Capability patch</strong> (changes code/orchestration) or a <strong>Steering patch</strong> (text-only edits like prompt reminders), and a phased schedule does capability patches first, steering patches later — like a learning-rate schedule. The patched harness is verified on the same mini-batch, then a <strong>Reflection session</strong> compares before/after traces (fixed / regressed / still-failing / still-passing) and writes lessons into <strong>EvoDAG</strong>, a directed acyclic graph of the optimization history where nodes are past harnesses and edges are the diffs between them. An <strong>Evolution agent</strong> then synthesizes the next harness by recombining elements from <em>any</em> prior nodes in EvoDAG (evolutionary merge across lineages, not just the latest), aiming to escape local optima. After the rollout budget is exhausted, the candidate with the best dev-set score is selected and tested once on held-out data.</p>
+<h2>Key results</h2>
+<p>On GAIA2, SWE-Bench Pro, and Terminal-Bench 2.0, AutoSaddler beats the base harness by 9.0, 9.6, and 10.0 percentage points respectively, and beats the strongest automated baseline by 7.4, 4.4, and 6.7 points. On GAIA2 it reaches 72.3% dev accuracy with ~1,000 total task executions vs ~2,800 for GEPA/Meta-Harness, and needs only 147 traces (~10× fewer than Meta-Harness&#x27;s 1,400) to reach its best score. Ablations support three ingredients: deep debugging over shallow reflection, targeted modifications over unconstrained editing, and generalization-aware selection over trajectory-specific repair. (Source: full paper, pages 1–6.)</p>
+<h2>How it relates to adaptive decomposition</h2>
+<p>AutoSaddler is a direct comparison point: it optimizes the whole harness as code, exactly the class of recursive/self-improvement work adaptive decomposition sits in. But the differences are the interesting part. Its decomposition of the harness is <strong>fixed and human-designed</strong> — the search space is θ = (prompts, tools, middleware) and the mutation catalogue is a fixed taxonomy (Table 1&#x27;s subtypes). The agent never <em>discovers</em> a new decomposition; it picks among pre-defined patch types. There is no splitting of the problem into subproblems with independent budgets, no parallel component evolution, no split-further-on-failure or fusion of working pieces, and no monolithic fallback. Evolution here is recombination of whole-harness lineages in EvoDAG, not hierarchical decomposition of the search surface. So: same &quot;harness as code&quot; search object as adaptive decomposition, but a fixed, flat mutation grammar instead of an evolvable decomposition hierarchy.</p>
+<h2>Limits and open questions</h2>
+<p>The patch taxonomy is hand-crafted — if the optimal fix doesn&#x27;t fit one of the ~10 subtypes, the agent can&#x27;t express it. Diagnosis quality bounds everything: if the agent misdiagnoses a long-horizon failure, the patch is wrong and EvoDAG just memorizes the mistake. The fixed capability-then-steering schedule is a heuristic, not learned. Also, the paper deliberately excludes memory/skill components (assumes stateless tasks), so it&#x27;s unclear the method transfers to agents whose state persists across tasks — which is exactly where adaptive decomposition would have the most to say.</p></div>
+<div class="nav"><span><a href="2607.22688.html">← Day 3: Co-Harness: Co-Evolving Harnesses and Model Weights for LLM </a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.24130.html">Day 5: Self-Healing Harness for Runtime Oversight of Agent Self-Mod →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>
