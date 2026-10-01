@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Turbo Harness: Instance-Adaptive Harness Optimization — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>Turbo Harness: Instance-Adaptive Harness Optimization</h1>
+</header>
+
+<div class="kicker">Day 63 · Dec 01, 2026</div>
+<h1 style="margin-top:6px">Turbo Harness: Instance-Adaptive Harness Optimization</h1>
+<p class="meta">Tunyu Zhang, Hao Wang, Kai Xu, Dimitris N. Metaxas · published 2026-09-30 · <a href="https://arxiv.org/abs/2609.40330">arXiv:2609.40330</a></p>
+<p><span class="badge rel4">highly relevant</span></p>
+<div class="card"><h2>One line</h2>
+<p>Turbo Harness: adapts a globally optimized harness (e.g. from Meta-Harness) to each task instance by recycling the completed search&#x27;s &quot;exhaust&quot; — candidate harnesses, traces, reflections — into a structured playbook of successful and failed editing strategies, then RL-training a small editor model (Qwen3.5-9B, via GRPO) that emits a single per-instance code patch to the global harness at inference time, falling back to the global harness when the patch fails to apply.</p>
+<h2>The problem</h2>
+<p>Every existing harness optimizer produces one global harness applied uniformly across all test instances — yet different instances may need different harness configurations (e.g. SWE-Bench-style issues from different repos with different dev workflows and testing conventions). Second, harness search is expensive and generates a rich archive of tried strategies, most of which is discarded once the global harness is chosen. The question: can that discarded optimization experience be reused to tailor the global harness per instance, without a fresh multi-round search per instance?</p>
+<h2>How it works</h2>
+<p>(1) <strong>Playbook distillation:</strong> the outer-loop search archive (all evaluated harnesses, including discarded candidates) is summarized ACE-style into a playbook recording both successful and unsuccessful harness-editing strategies plus the conditions under which they help. (2) <strong>Editor training:</strong> for each training instance, the editor samples G candidate patches to H\<em>, each is applied and evaluated by running the frozen execution model, and GRPO updates the editor using advantages computed from the same instance&#x27;s G relative rewards; patches that can&#x27;t be applied or fail validation get zero reward and are never executed. (3) <strong>Inference:</strong> one editor call per instance produces a single patch p_x, giving H_x = H\</em> ⊕ p_x for the frozen execution model to run — no two-pass &quot;run, fail, then patch&quot; procedure. The playbook is held fixed during training and evaluation.</p>
+<h2>Key results</h2>
+<ul>
+<li>Four agentic benchmarks (frozen Qwen3.5-9B editor, frozen executor): Turbo beats Meta-Harness everywhere — ALFWorld +10.0pp (60.7→70.7), ScienceWorld +7.3 (35.1→42.4), DBBench +4.2, WebShop 42.0 vs 40.0 (Harness-R1: 42.2); beats ReAct, Self-Refine, Reflection on every benchmark.</li>
+<li>SWE-smith-MR: Haiku pass rate 50.7→64.0, Gemini 70.7→88.0 (+17.3pp); average over both coding benchmarks, GEPA and ACE context/prompt methods top out well below Turbo.</li>
+<li>SWE-bench Verified: Gemini 38.4→54.4, Haiku 56.7→59.3 (+2.7 — small because Meta-Harness already captured most of Haiku&#x27;s headroom, which the paper calls out explicitly).</li>
+<li>Terminal-Bench-2.1 (Sonnet 4.5, 44 tasks): Turbo 55.5%, top of five runs, +5.0 over Meta-Harness and +3.2 over the strongest human-designed harness (Terminus-Kira); also cheapest among competitive harnesses (turns 76.3→71.2, $1.56→$1.38 per task vs Meta-Harness). Meta-Harness did <em>not</em> beat human harnesses here, so this is a strict test.</li>
+<li>Ablations (SWE-smith-MR): neither playbook alone nor RL alone beats Meta-Harness — untrained 9B + playbook 50.0%, RL-trained editor without playbook 49.3%; combined 64.0%. RL lets a small editor match a frozen Opus-4.6 as editor (61.3) and beat frozen Sonnet-4.5 (55.3).</li>
+</ul>
+<h2>How it relates to adaptive decomposition</h2>
+<p>Turbo Harness is evidence for the <em>same disease</em>, a different treatment. It agrees a single monolithic harness leaves headroom on the table, but attacks it at <strong>instance granularity</strong> rather than component granularity: one global H\<em> plus per-instance patches. Adaptive decomposition&#x27;s whole point is to reorganize the harness into independently evolvable components with per-component search budgets, split failing components, fuse working ones, and revert when local and global disagree. Turbo does none of that — the search object is still the full harness (patch candidates evaluated whole), the playbook catalogs editing </em>strategies<em> rather than component failure modes, and the only fallback is &quot;patch didn&#x27;t apply → keep H\</em>&quot; (a monolithic fallback, in adaptive-decomposition terms, not a component revert). It&#x27;s supportive as motivation (their headline gains quantify the cost of one-size-fits-all) and the reusable-archive idea maps well onto a component-level evolutionary loop — an adaptive-decomposition run would produce exactly the kind of rich, discarded per-component search exhaust a future &quot;Turbo per component&quot; could recycle — but mechanistically it&#x27;s orthogonal, operating one level coarser. Does not compete: instance-level patching and component-level decomposition could stack.</p>
+<h2>Limits and open questions</h2>
+<p>Effectiveness depends on the quality and diversity of the completed global search — weak or uninformative outer-loop archives yield weak playbooks (stated limitation). Training the editor needs extra environment rollouts, costly on agentic tasks (stated limitation). When the global harness already captures most headroom, per-instance adaptation adds little (Haiku on SWE-bench Verified: +2.7pp and slightly <em>more</em> steps). Open, flagged as future work: whether editors and playbooks transfer across tasks, domains, or harness-search runs; also whether per-instance editing can compound errors or oscillate across related instances is untested. And reported execution-cost savings exclude both the offline optimization and the one editor call per instance.</p></div>
+<div class="nav"><span><a href="2609.40303.html">← Day 62: How Much of a Harness Does a Strong Agent Need for Autonomou</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.38291.html">Day 64: HARDE: Optimizing Agent Harnesses for Runtime Risk Detection →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

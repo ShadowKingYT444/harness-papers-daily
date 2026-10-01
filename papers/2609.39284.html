@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EngramBench: A Capability-Grounded Benchmark for Skill-Evolution Harnesses — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>EngramBench: A Capability-Grounded Benchmark for Skill-Evolution Harnesses</h1>
+</header>
+
+<div class="kicker">Day 59 · Nov 27, 2026</div>
+<h1 style="margin-top:6px">EngramBench: A Capability-Grounded Benchmark for Skill-Evolution Harnesses</h1>
+<p class="meta">Zhixuan Tan, Pengjie Gu, Zhao Li, Yihan Hu, Xu He, Dong Li, Jianye Hao · published 2026-09-30 · <a href="https://arxiv.org/abs/2609.39284">arXiv:2609.39284</a></p>
+<p><span class="badge rel4">highly relevant</span></p>
+<div class="card"><h2>One line</h2>
+<p>A benchmark for skill-evolution harnesses that finally separates genuine capability abstraction from rote solution memorization, governed by one axiom — &quot;capability overlap without solution overlap&quot;: 30 learning tasks distilled into a frozen skill bank, then 13 unseen cross-domain projects driven by an LLM-simulated user. The headline result: static skill banks can&#x27;t clear the &quot;last mile&quot; of exact implementation (correctness +4.62 pp), but they cut coding time by 55.3% by killing token-heavy trial-and-error.</p>
+<h2>The problem</h2>
+<p>Skill-evolution harnesses (Voyager, ExpeL, AgentCL, the authors&#x27; own SkillHone) claim to distill reusable engineering skills from past experience, but their evaluations suffer an identifiability problem the paper formalizes as <code>Downstream Score = f(Distillation Capability × Presence of Evidence in History)</code>. Treating the right side as a black box makes the left side unmeasurable: a high score might be zero-shot intuition or copied solutions, a low score might just mean the history lacked the relevant knowledge. The dominant failure mode is <strong>solution leakage</strong> — benchmarks repurpose SWE-bench-style intra-domain task sequences, where agents hit artificially high transfer scores by copying ASTs, local APIs, or database schemas from the same repo&#x27;s history. Conversely, preventing solution reuse isn&#x27;t enough: learning and test tasks must still share transferable skill dependencies, or the history is irrelevant. When an agent fails on a new project, existing benchmarks can&#x27;t tell you whether the memory framework failed to abstract the skill or the benchmark simply provided the wrong history.</p>
+<h2>How it works</h2>
+<p>The paper&#x27;s answer is the golden axiom: <strong>Capability Overlap Without Solution Overlap</strong>. Concretely:</p>
+<ul>
+<li><strong>30 learning tasks across 6 business domains</strong> (Resource Booking &amp; Logistics, Data &amp; Collaboration, Transaction &amp; Ledger, IoT &amp; Configuration, Security &amp; Moderation, Infrastructure &amp; Communication), yielding feedback-rich trajectories (583 interactive turns) that include the agent&#x27;s initial mistakes, test failures, and iterative fixes — not just final correct code. Every task and distilled skill is human-expert validated for feasibility.</li>
+<li><strong>13 long-horizon transfer projects</strong> sharing zero business logic or APIs with the learning tasks. These are not single-turn tests: an LLM-simulated user drives 25–30 interactive turns per task over multi-hour development cycles, asking follow-ups, checking progress against a frozen plan, and rejecting incomplete drafts. To succeed the agent must dynamically compose abstract skills across domains (many-to-many transfer).</li>
+<li><strong>Strict two-phase protocol:</strong> Phase 1 distills learning trajectories into a Skill Bank compiled into a manifest with SHA-256 hashes; Phase 2 freezes it. Transfer runs execute in isolated Docker containers with no access to learning workspaces or histories, and skill evolution is disabled during transfer. Hidden evaluators stay unmounted during development; once the public interface checker passes, the commit is frozen and evaluated in a separate container — anti-look-ahead-bias isolation.</li>
+<li><strong>CCPF metric</strong> (Confirmed-Case Pass Fraction): <code>P_t / |C_t|</code> over all applicable hidden cases, equally weighted; self-authored agent tests are ignored, and unresolved states, crashes, or unreached cases stay in the denominator — no credit for partial work. Hidden stress tests cover five dimensions (Contracts &amp; Lifecycle, Data Idempotency &amp; Concurrency, Worker Recovery &amp; Durability, Cross-Layer UI Consistency, Operational Compatibility), with adversarial cases: 64 concurrent same-idempotency-key requests, SIGKILL-then-recover worker checks, and anti-hallucination checks that break dependencies — if the agent&#x27;s tests still pass under broken conditions, the submission fails.</li>
+<li><strong>Controlled experiment:</strong> GPT-5.5 Medium as coding agent, DeepSeek V4 Pro (thinking/high) as simulated user, fixed requirements and frozen plan (to isolate execution from planning). Four configs × 4 representative tasks (CapacityLease, EscrowGuard, MeterSettle, FlagFoundry) × 3 trials = 48 audited trajectories. Configs: No Skills; S-Full-20 (368 raw skill packages distilled via a two-stage pipeline into 20 cross-domain skills); S-Ablated-20 (69.66% of historical text removed before the same pipeline — evidence-deprivation test); Coreless-3 (S-Full-20 surgically stripped to 3 basic interface skills — capability-deprivation test).</li>
+</ul>
+<h2>Key results</h2>
+<ul>
+<li><strong>The &quot;last mile&quot; bottleneck:</strong> S-Full-20 improves micro-average CCPF by +4.62 pp (46.63% → 51.25%), but unevenly — EscrowGuard jumps +14.81 pp while CapacityLease <em>regresses</em> −1.45 pp. The authors&#x27; reading: a reusable engineering principle is an architectural compass, not an executable implementation; the last mile of exact code still depends on the base model&#x27;s reasoning limits, which static skills cannot bypass.</li>
+<li><strong>The efficiency paradigm:</strong> coding time collapses 55.3% (189.00 → 84.46 min, ~104 min saved per run), non-cached input tokens drop 80.91%, while completed dev turns barely change (−1.85%) — the agent works just as long but stops thrashing. Network wait accounts for only ~6 min of the saving; the rest comes from avoiding catastrophic architectural errors early, slashing redundant context bloat.</li>
+<li><strong>Capability trumps history volume:</strong> S-Ablated-20, built from 69.66% less raw history, achieves the <em>highest</em> CCPF (52.60%) with only +8.6% time penalty vs S-Full-20. Distillation quality, not evidence quantity, carries the transfer. Coreless-3 collapses in the other direction: CCPF 48.36% and time ≥190.87 min — worse than the No Skills baseline — supporting that the abstracted <em>procedures</em> (concurrency control, recovery) are what produce the gains.</li>
+<li><strong>Behavioral audit:</strong> S-Full-20 invokes the patch tool 29.8% less often while total added lines drop only 3.66% — edits grow from ~47 to ~64 lines per patch, i.e. decisive execution over fragmented edit-check loops. Coreless-3 is the thrashing extreme: tool invocations +68.97% and reasoning tokens +131.76% (~700k) vs S-Full-20, with 14.76M characters of error logs and 26 context compactions.</li>
+</ul>
+<h2>How it relates to adaptive decomposition</h2>
+<p>EngramBench does <strong>not</strong> implement adaptive decomposition — and that is the precise tension. It is a measurement instrument for <em>static</em> skill banks: the protocol explicitly freezes the bank and disables skill evolution during transfer, so any system that discovers its decomposition online, splits failing components, fuses working ones, or reverts toward monolithic state would be evaluated only in frozen snapshot form. The benchmark&#x27;s anti-leakage freeze is at odds with evaluating the dynamic, continual side of the mechanism.</p>
+<p>Still, it offers things adaptive decomposition directly needs:</p>
+<ul>
+<li><strong>A decomposition diagnostic, not just a score.</strong> CCPF is requirement-level and per-dimension (idempotency/concurrency vs recovery/durability vs UI consistency), which is exactly the granularity you&#x27;d want for split decisions: a component failing dimension B but passing A and D is a candidate for splitting, not for discarding. Pass@1-style metrics can&#x27;t supply that signal.</li>
+<li><strong>The last-mile result bounds the mechanism&#x27;s claim.</strong> Adaptive decomposition argues the right decomposition changes search efficiency; a static bank already delivers a 55.3% time reduction and an 80.91% non-cached-token reduction. That&#x27;s a lower bound an adaptive version must beat — and the &quot;compass, not implementation&quot; finding warns that no decomposition trick, however clever, removes the base model&#x27;s reasoning bottleneck at the leaves. Splitting won&#x27;t fix a component the model simply cannot implement.</li>
+<li><strong>Content, not count, governs fuse decisions.</strong> The S-Ablated-20 vs Coreless-3 contrast says a fused component&#x27;s value lives in the specific abstracted procedures it carries, not in skill count or history volume — so fusing working components must preserve those procedures intact, and &quot;has many subcomponents&quot; is not evidence of capability.</li>
+<li><strong>Many-to-many composition is the bar for dynamic discovery.</strong> The benchmark&#x27;s tasks require composing skills from different domains (e.g., append-only ledger correction from BillForge composed with fault-injection recovery from QueueForge); an adaptive system evaluated here would have to <em>discover</em> that composition online, with no human-designed skill boundaries — precisely the mechanism&#x27;s claim, and EngramBench is the closest existing instrument that could verify it.</li>
+</ul>
+<h2>Limits and open questions</h2>
+<ul>
+<li><strong>Scale:</strong> the deep ablation is 48 trajectories over 4 of the 13 transfer tasks; a single run can consume up to 66 million tokens and requires manual auditing, so the full-suite audit is stated as ongoing work. All conclusions rest on that 4-task subset.</li>
+<li><strong>Static banks only.</strong> The freeze that makes the benchmark rigorous also means dynamic retrieval (Active RAG), continual online skill updates, and any recursive-decomposition dynamics are deliberately excluded. This is by design, but it limits what the benchmark can say about the systems that matter most.</li>
+<li><strong>Single-model grounding.</strong> All empirical findings come from one coding agent (GPT-5.5 Medium) and one simulated-user model (DeepSeek V4 Pro). The last-mile bottleneck and the 55.3% figure are statements about that pairing, not about procedural memory in general.</li>
+<li><strong>The S-Ablated-20 anomaly cuts both ways.</strong> The authors read &quot;69.66% less history, best CCPF&quot; as proof that capability beats volume — but an alternative reading is that the LLM distiller is doing the real abstraction work and is insensitive to evidence deprivation, which would make the benchmark partly a test of the distiller, not of the history. The presence-of-evidence guarantee in their equation (1) is less clean than the axiom suggests.</li>
+<li><strong>Coreless-3 was exploratory.</strong> It was designed after inspecting the S-Full-20/S-Ablated-20 comparison, not pre-registered — honest, but it weakens the causal reading of the collapse.</li>
+<li>I read the full main body and the complete Appendix A (the per-transfer-task capability mapping) from the PDF extraction; the code repo (github.com/Virgil-Tan/EngramBench) was not inspected.</li>
+</ul></div>
+<div class="nav"><span><a href="2609.38349.html">← Day 58: MILO: Automated Harness Discovery via Orchestrated Multi-Age</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.39304.html">Day 60: Scale and Selection: What Makes Automatic Harness Evolution  →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

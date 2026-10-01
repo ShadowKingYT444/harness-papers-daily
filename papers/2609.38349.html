@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MILO: Automated Harness Discovery via Orchestrated Multi-Agent Evolution — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>MILO: Automated Harness Discovery via Orchestrated Multi-Agent Evolution</h1>
+</header>
+
+<div class="kicker">Day 58 · Nov 26, 2026</div>
+<h1 style="margin-top:6px">MILO: Automated Harness Discovery via Orchestrated Multi-Agent Evolution</h1>
+<p class="meta">Prithwish Jana, Mononito Goswami, Hao Liu, Xinyu Li, Langlin Huang, Zhehui Huang, Zhishen Huang, Patrick Blöbaum, Anoop Deoras, Purak Jain, Nikos Kanakaris, Sahika Genc · published 2026-09-29 · <a href="https://arxiv.org/abs/2609.38349">arXiv:2609.38349</a></p>
+<p><span class="badge rel4">highly relevant</span></p>
+<div class="card"><h2>One line</h2>
+<p>MILO (Meta-evolutionary Island Orchestration) co-evolves the harness <em>and its own search strategy</em>: island-partitioned lineage memory that retains rejected mutations as negative evidence, per-island mutator agents that rewrite whole harnesses, and an orchestrator agent that diagnoses search stalls and intervenes by reassigning mutators, grafting lineages, speciating niches, or reshaping the task curriculum.</p>
+<h2>The problem</h2>
+<p>Automated harness discovery is usually cast as LLM-driven evolutionary search, but existing methods fail in four ways: (1) <strong>exploration</strong> — LLM mutators exploit far more than they explore, collapsing onto variants of a few designs, while gains on long-horizon tasks come from global structural mutations; (2) <strong>sample efficiency</strong> — scoring one harness takes hours, yet most methods are failure-blind, keeping only survivors; (3) <strong>self-adaptive search</strong> — strategies are fixed a priori and can&#x27;t escape local optima (only EvoX adapts, and only parent selection/mutation); (4) <strong>multi-objective fitness</strong> — almost all optimize accuracy alone and drift to costly harnesses; none optimize latency. MILO&#x27;s key insight: evolve the complete search strategy (memory, mutators, curriculum) alongside the harness.</p>
+<h2>How it works</h2>
+<p>Two coupled loops. The <strong>inner loop</strong> evolves harnesses per island: (1) select a parent from the island&#x27;s admitted set; (2) the island&#x27;s mutator agent rewrites the <em>whole harness</em> conditioned on the parent&#x27;s failure traces/verifier reports and the island&#x27;s lineage memory — which retains <em>rejected</em> candidates, so failures prune later mutations and push toward bolder structural changes; (3) score on accuracy, tokens, latency; (4) admit only Pareto-frontier advancers; (5) monitor held-out accuracy and a per-island stall counter. Islands grow in isolation from distinct seeds and exchange ideas but never compete for survival, confining each mutator&#x27;s exploitative bias to its island. The <strong>outer loop</strong> fires when an island stalls beyond patience P: the <strong>orchestrator agent</strong> (which observes all islands) <strong>diagnoses</strong> the bottleneck as one of four — dry mutator (repeatedly rejected/inert children), exhausted lineage, crowded-out niche (a dominant lineage suppressing a distinct minority subtree), or whole-population plateau — then <strong>intervenes</strong> with up to two actions: <em>Reassign</em> (new mutator for the island), <em>Graft</em> (breed two islands&#x27; best harnesses as co-parents), <em>Speciate</em> (promote a suppressed subtree to its own island), or <em>Curriculum</em> (reshape the search task set toward high-regret tasks — tasks a few harnesses solve and most fail, where search helps most). The final harness is the one that most advances the accuracy–cost frontier on held-out tasks.</p>
+<h2>Key results</h2>
+<ul>
+<li>With Opus 4.8, MILO improves resolution rate over its initial harness by <strong>+12.0% (Terminal-Bench 2.1), +28.3% (PaperBench), +10.3% (DeepSWE)</strong> — vs best prior search gains of +4.5% (GEPA), +18.3% (Meta-Harness), and 0%.</li>
+<li>Terminal-Bench 2.1: <strong>86.1±2.0%</strong>, above the official leaderboard&#x27;s top entry (83.8±2.3%), while consuming <strong>26% fewer tokens</strong> than its initial harness.</li>
+<li>With gpt-oss-120b: 15.6% on DeepSWE — <strong>20× its initial harness</strong>, while prior search methods stay below 1%.</li>
+<li>Generalization: the Terminal-Bench-evolved harness scores <strong>2.7× Mini-SWE-Agent on the harder Frontier-Bench</strong> with no further search.</li>
+<li>On EinsteinArena&#x27;s open problems, MILO-evolved harnesses tighten best-known upper bounds: Erdős minimum-overlap 0.3808586→0.3808568, autocorrelation inequalities 1.50274365→1.50274360 and 1.45081→1.44889 — surpassing AlphaEvolve, TTT-Discover, and EvoX.</li>
+<li>Search-mechanism ablation (RR@5 on Terminal-Bench 2.1): flat LLM mutator 76.4 → +agentic mutator 79.1 → +lineage memory 79.3 → +islands 80.5 → <strong>+orchestrator 86.1</strong> — the largest single gain comes from the orchestrator. Even the weakest seed can yield the best harness.</li>
+</ul>
+<h2>How it relates to adaptive decomposition</h2>
+<p>MILO is the closest <em>structural</em> cousin of adaptive decomposition in the current literature — it already implements three of its moves under different names. <strong>Islands ≈ parallel component lineages</strong> evolving without competing for survival; <strong>Speciate ≈ split</strong> (promote a distinct subtree solving different tasks into its own lineage); <strong>Graft ≈ fuse/crossover</strong> (breed two islands&#x27; best harnesses); <strong>the orchestrator&#x27;s diagnose→intervene loop ≈ the meta-controller</strong> adaptive decomposition needs, detecting stalls and restructuring the search itself. The rejected-mutation memory is negative evidence as a first-class search input. The critical differences: (1) MILO evolves <strong>whole harnesses</strong>, never a decomposition the agent discovers — islands are a fixed population structure, not recursively split/fused components; (2) the orchestrator diagnoses <em>search stalls</em>, not <em>component-level credit assignment</em> — it never asks &quot;which component caused this failure&quot;; (3) no per-component search budgets and no monolithic-fallback logic. Adaptive decomposition can be read as MILO&#x27;s orchestrator turned inward: instead of managing islands of whole harnesses, manage the decomposition itself — let the agent discover the split, budget each component&#x27;s search independently, and fuse or revert based on local-vs-global agreement.</p>
+<h2>Limits and open questions</h2>
+<p>No explicit limitations section; the honest gaps are structural. The orchestrator&#x27;s four diagnoses and four interventions are a fixed action set — the search <em>strategy</em> adapts, but the <em>meta-strategy</em> (what diagnoses exist) is human-designed. Islands never compete, which preserves diversity but may waste budget on dead lineages; there&#x27;s no mechanism to kill an island, only to reassign/graft/speciate around it. All results are on software-engineering and math benchmarks with two backbones; the generality of the orchestrator&#x27;s diagnoses to other agent domains is untested. The multi-objective admission (accuracy/tokens/latency) is Pareto-gated, but the paper doesn&#x27;t report how often latency actually trades against accuracy. Open: what happens if the unit of evolution is a <em>component</em> rather than a whole harness — do islands of components with an orchestrator managing the decomposition itself beat islands of monoliths? That&#x27;s the experiment adaptive decomposition proposes.</p></div>
+<div class="nav"><span><a href="2609.19526.html">← Day 57: Self Improvement via Fast Tree-search</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.39284.html">Day 59: EngramBench: A Capability-Grounded Benchmark for Skill-Evolu →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

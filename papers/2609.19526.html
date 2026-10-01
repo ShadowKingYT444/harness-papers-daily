@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Self Improvement via Fast Tree-search — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>Self Improvement via Fast Tree-search</h1>
+</header>
+
+<div class="kicker">Day 57 · Nov 25, 2026</div>
+<h1 style="margin-top:6px">Self Improvement via Fast Tree-search</h1>
+<p class="meta">Xinghong Fu, Aravinth Kulanthaivelu, Yutaro Yamada · published 2026-09-17 · <a href="https://arxiv.org/abs/2609.19526">arXiv:2609.19526</a></p>
+<p><span class="badge rel4">highly relevant</span></p>
+<div class="card"><h2>One line</h2>
+<p>Tree-search RSI is bottlenecked by expensive benchmark evaluations, so SIFT replaces per-patch evaluation with pairwise LLM-judge comparisons aggregated by a regularized Bradley–Terry model, disaggregates expansion from evaluation, and matches or beats DGM/HGM on Polyglot at roughly a tenth of the compute.</p>
+<h2>The problem</h2>
+<p>Recursive self-improvement of coding agents works — Gödel Agent, SICA, DGM, HGM all show it — but the search loop is brutally expensive: every candidate self-modification must be validated by re-running benchmark tasks, which the paper notes can cost upwards of $22,000 on SWE-Bench and thousands of CPU hours. Full benchmark evaluation is reliable but slow; subset evaluation is cheap but noisy. The paper identifies the signal-to-cost tradeoff of per-patch evaluation as the primary bottleneck and proposes a cheap intermediate signal: an LLM judge rating proposals pairwise.</p>
+<h2>How it works</h2>
+<p>SIFT (built on the DGM harness) has two coupled ideas. (1) <strong>Pairwise judge + Bradley–Terry aggregation.</strong> Each new candidate patch is compared pairwise against incumbent agent harnesses by an LLM judge; the win-loss record feeds a regularized Bradley–Terry model that assigns a global strength score to every node in the search tree. Pairwise calls cost a few cents each — an order of magnitude cheaper than a full Polyglot-50 evaluation — and are calibration-free compared to absolute rubric scoring. (2) <strong>Fully disaggregated tree search.</strong> Expansion and evaluation run as separate parallel streams: parent nodes are sampled from the full archive with weights combining BT rank, accuracy rank, and a visit-count exploration term, while a priority queue of nodes-to-evaluate is ranked by the same metric. An orchestrator inserts finished expansions into the evaluation queue, prioritizing high-potential nodes while launching the next expansion — judge scores guide speculative exploration so the search never stalls waiting for slow benchmark runs. Expensive full evaluations are reserved for the most promising nodes only.</p>
+<h2>Key results</h2>
+<p>On Polyglot-50 with Qwen3-30B as coding model and Qwen3-480B as expansion/judge model, 30 evolution steps lift accuracy 16% → 38%, and the best descendant reaches 31.1% on the full 225-task Polyglot at $34.3 API cost, 6.71h wall clock, 224 CPU hours — stated as a tenth of the DGM baseline&#x27;s cost. Head-to-head on Polyglot-225: SIFT 31.1% vs HGM 30.5% (at 347 CPU hours) vs DGM 27.1% vs SICA 25.1% vs base 20.0. With o3-mini as coding model, SIFT reaches 35.1% within 30 expansions vs DGM&#x27;s 30.7% after 80 tree-search nodes, in under 5h wall clock, 42 CPU hours, $150 API — and three repeat runs land in [32.0%, 35.6%], consistently beating DGM at lower cost. The discovered harnesses transfer: re-evaluating SIFT-discovered harnesses with gpt-5-mini and gpt-5.4-mini as coding models still improves Polyglot performance.</p>
+<h2>How it relates to adaptive decomposition</h2>
+<p>The transferable insight is about <em>evaluation budgeting</em>, which is the scarcest resource in any harness-evolution loop including the user&#x27;s. Adaptive decomposition gives each component an independent search budget — the question is how to spend it without burning full benchmark runs on every candidate. SIFT&#x27;s answer is a two-tier signal: a cheap, noisy judge for ranking plus expensive validation reserved for the top of the queue. That maps directly onto per-component evaluation: use a cheap LLM-judge pairwise comparison to decide which component revisions deserve full harness rollouts. The BT aggregation is also a cleaner alternative to the binary keep/reject gates used elsewhere (cf. VACE&#x27;s validation gate): a scalar strength with uncertainty, aggregated over pairwise evidence, is exactly the kind of ranking signal a successive-halving-style budget allocator wants. One caution for the user&#x27;s setting: SIFT&#x27;s judge compares whole-harness patches, so it inherits the monolithic credit-assignment problem — the judge can&#x27;t tell you <em>which</em> component made the patch better.</p>
+<h2>Limits and open questions</h2>
+<p>The authors are explicit about the main ones: SIFT still depends on downstream benchmark evaluations for final validation — the judge is a ranking accelerator, not a replacement. The judge in the strongest runs is <em>stronger</em> than the coding backbone (Qwen3-480B judging Qwen3-30B), so this isn&#x27;t pure self-judgment; whether a smaller or open-weight judge (or the coding model itself) gives comparable ranking signal is untested. The Bradley–Terry model assumes pairwise outcomes are explained by a single latent strength per node — a useful approximation for search, but it hides task-specific tradeoffs (a patch that helps long-horizon debugging while hurting syntax repair gets one scalar). The paper suggests multi-dimensional or failure-category-conditioned rankings as future work. Finally, the usual RSI caveats: safety and evaluation-integrity risks of self-modifying agents, noted but not addressed.</p></div>
+<div class="nav"><span><a href="2609.38912.html">← Day 56: Composing Task-specific Agent Harnesses at Test Time with Re</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.38349.html">Day 58: MILO: Automated Harness Discovery via Orchestrated Multi-Age →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

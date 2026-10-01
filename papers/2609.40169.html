@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning from Research: Toward Lifelong Agent Harness Evolution — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>Learning from Research: Toward Lifelong Agent Harness Evolution</h1>
+</header>
+
+<div class="kicker">Day 66 · Dec 04, 2026</div>
+<h1 style="margin-top:6px">Learning from Research: Toward Lifelong Agent Harness Evolution</h1>
+<p class="meta">Jingbo Yang, Kwei-Herng Lai, Xiaowen Wang, Yaar Harari, Evgeniy Gabrilovich, Shiyu Chang · published 2026-09-30 · <a href="https://arxiv.org/abs/2609.40169">arXiv:2609.40169</a></p>
+<p><span class="badge rel3">relevant</span></p>
+<div class="card"><h2>One line</h2>
+<p>A lifelong harness-evolution framework that turns research papers into executable harness mutations: topic-model the literature into orthogonal mechanism families per module, implement them with a coding agent, and select combinations via paired-bootstrap validation — raising Qwen3.5-27B AppWorld Challenge TGC from 49.6% to 63.6% and GPT-5.4-mini τ²-Bench Telecom pass1 from 72.7% to 81.9%.</p>
+<h2>The problem</h2>
+<p>Recent harness-evolution methods (DGM, Meta Harness, AHE) use a meta coding agent that proposes edits from execution traces and its own knowledge. The authors name three failure modes of this regime: ❶ <strong>limited exploration</strong> — broad edit permission still yields a narrow sequence of local edits (search plateaus around repeated local edits; Figure 1 shows an added verifier blocking tool calls it needed), ❷ <strong>limited design knowledge</strong> — proposals depend on the meta agent&#x27;s backbone knowledge, which a failure trace can&#x27;t supply, and ❸ <strong>delayed adaptation</strong> — trajectory-driven evolution only reacts after users have already hit the weakness. The research literature is an untapped source of fresh mechanisms, but nobody had made the literature→harness translation an explicit search process.</p>
+<h2>How it works</h2>
+<p><strong>Problem formulation.</strong> A harness is H = Compose(m1, …, m5): five modules — tool interface, context management, skills, memories, agentic workflows — each with a defined interface, around a fixed backbone fθ. Three strictly disjoint sets: Devo (failure analysis, artifact construction), Dval (candidate evaluation, champion selection), Dtest (final reporting only). The objective is J(H) = E_x∼Ptar E_τ∼pθ(·|H,x)[R(x,τ)], optimized without touching θ or Dtest.</p>
+<p><strong>Research pool construction.</strong> An auditor attributes failed Devo trajectories to agent vs environment causes; a research model abstracts recurring agent failures into benchmark-agnostic capability gaps, generates capability + mechanism queries per module, and retrieves/dedupes papers into a pool Pj per module.</p>
+<p><strong>Topic modeling for orthogonal exploration (the core idea).</strong> Following the TopicGPT framework, the research model induces mechanism topics (generation), merges paraphrases/overlapping categories and drops vague ones (refinement), then assigns each paper an ordered topic list with supporting abstract excerpts, the primary label defining its selection cluster. Candidates are drawn round-robin across clusters, so a budget of Kj papers covers min(Kj, |Tj⁺|) distinct mechanism families. Topic orthogonality diversifies implementations <em>within</em> a module; module interfaces localize responsibilities so topics and modules compose at complementary levels.</p>
+<p><strong>From papers to executable mutations.</strong> For each selected paper, a research agent reads the full paper plus official code and writes a mutation blueprint (source mechanism, target module/interface, required state/artifacts, runtime ops, termination). The coding agent (Codex/GPT-5.4) implements mj^(p) and constructs Hj^(p) = H^(0)[j ← mj^(p)], keeping the other four modules fixed; lightweight health probes check importability, interface compatibility, artifact reloading, and valid action production, with a repair budget.</p>
+<p><strong>Crossover and selection.</strong> Predicted combination gain is additive: Δ̂(c) = (1/|Dval|) Σ_j Σ_i gj,cj(i), where cj = 0 retains the base module. Combinations are shortlisted within budget, then evaluated as complete harnesses for actual gain — the regression check accounts for module interactions and reward ceilings. The champion is replaced only if the lower endpoint Lα of the paired bootstrap gain interval is positive (statistical confirmation, not point estimates). One generation without a confirmed validation gain (s_stop = 1 in main experiments) or budget exhaustion ends the cycle.</p>
+<p><strong>Lifelong extension.</strong> Periodic literature refresh (retrospective windows: through Dec 2025, Jan–Apr 2026, May–Aug 2026) starts a new search cycle from the retained champion, screening topics against current mechanisms — new publications can trigger mutation rounds before corresponding failures accumulate in deployment.</p>
+<h2>Key results</h2>
+<ul>
+<li><strong>Main table (3 runs each):</strong> AppWorld Normal Qwen3.5-27B 69.0→81.4 TGC (+12.4), SGC +20.2; Challenge 49.6→63.6 (+14.0), SGC +16.5. Mini: Normal +5.3, Challenge +9.5. Telecom: Mini pass1 72.7→81.9 (+9.2), pass4 +9.1. Meta Harness barely moved Qwen Challenge (+5.0) and <em>regressed</em> Mini (e.g., Telecom pass1 −6.2) under equal search-rollout budgets.</li>
+<li><strong>Closing model gaps with fixed weights:</strong> evolved Qwen reaches 81.4% TGC on Normal, matching Kimi-K2.6&#x27;s 81.3% and closing ~74% of the gap to GPT-5.4 (16.7→4.3 points).</li>
+<li><strong>Generalization to unseen applications:</strong> Challenge requires Amazon/Gmail APIs absent from evolution; gains are <em>larger</em> on Challenge than Normal, and remain positive beyond the training API maximum of 12 (Qwen +9.5, Mini +7.2 TGC points on &gt;12-API tasks).</li>
+<li><strong>Lifelong (3 windows, Qwen):</strong> TGC 69.00→73.41→79.76→81.55; Meta Harness flat at 71.03→70.44→69.64 (final advantages of 11.9 TGC / 15.5 SGC points).</li>
+<li><strong>Cumulative ablations:</strong> replacing topic-guided selection with relevance ranking, then module-wise mutation with joint editing, then research guidance (→ Meta Harness) — scores decline at every step; research guidance alone worth 1.4/2.3 TGC/SGC points (Qwen), 2.6/5.4 (Mini).</li>
+<li><strong>Crossover interactions:</strong> combinations beat their strongest constituent (Qwen +3.5/12.3, Mini +4.7/7.0 TGC/SGC); a <em>weaker</em> standalone skills candidate (73.7% vs 75.4%) formed a stronger combination — standalone scores don&#x27;t identify the best composition.</li>
+<li><strong>Reliability:</strong> Qwen improves on 221/585 tasks vs 57 regressions; ~73% of gains come from intermittently-succeeding tasks; all-three-runs successes rise 205→333. Residual failures after evolution: invalid response formats 492→206 episodes, but constraint violations (91→89) and incomplete retrieval (77→70) barely budge — requirement tracking and evidence coverage persist.</li>
+</ul>
+<h2>How it relates to adaptive decomposition</h2>
+<p><strong>Direct contrast, and it&#x27;s an important one:</strong> ScholarEvolve&#x27;s decomposition is fixed and human-designed — the five modules come from the modular harness view in Team et al. (2026), and no step ever questions the boundaries. It never discovers a decomposition, never splits a failing module into finer subproblems, never fuses modules, and has no revert-toward-monolith move. Don&#x27;t be misled by &quot;Task Decomposition&quot; appearing among the workflow module&#x27;s mutation topics: that is the agent decomposing <em>tasks</em> at runtime, not the system decomposing <em>itself</em> — a different object entirely. This paper is therefore fixed-decomposition harness evolution, closer in spirit to Meta Harness/PluginRSI than to adaptive decomposition.</p>
+<p><strong>Two reusable tools, though.</strong> First, the round-robin topic coverage is a concrete, tested mechanism for <em>distributing search budget across orthogonal families of approaches</em> — exactly the scheduling problem adaptive decomposition faces when a split produces several subproblems. The analogy: where ScholarEvolve spreads Kj paper budgets across mechanism topics to force exploration breadth, an adaptive-decomposition system could spread search budget across discovered subproblems, with merging of overlapping topics as the analog of fusing redundant subproblems. Second, the crossover design — measure candidates per-module, rank combinations by additive predicted gain, then joint-evaluate the shortlist — is a directly reusable fuse-evaluation protocol, and their result that a weaker standalone candidate produced a stronger combination is empirical evidence the user&#x27;s fuse step cannot trust component-level scores alone.</p>
+<p><strong>On the trigger question.</strong> Adaptive decomposition needs a policy for <em>when</em> to split or re-evolve; ScholarEvolve&#x27;s answer is an external one — new literature windows restart the search from the champion. That&#x27;s an implementable trigger for &quot;keep evolving,&quot; though it says nothing about the revert move: champion retention here is strictly forward; there is no mechanism for backing toward a monolithic state when components disagree.</p>
+<p><strong>Related-work positioning:</strong> this is a neighboring branch — fixed-decomposition, literature-driven evolution — not an implementation or approximation of adaptive decomposition&#x27;s core. Its distinctive contribution relative to the user&#x27;s mechanism is a source of <em>novel mutation content</em> (papers), whereas adaptive decomposition&#x27;s novelty is structural (the decomposition itself is discovered). A hybrid is easy to sketch: literature-derived mechanisms as split/fuse proposals inside a self-discovered decomposition.</p>
+<h2>Limits and open questions</h2>
+<p>The five-module decomposition is taken as given from prior work and never questioned — module boundaries are never learned, split, or merged, so the paper&#x27;s biggest architectural assumption is invisible to its own search. There is no in-loop anti-overfitting or anti-bloat gate beyond validation statistics: the gate is disjoint Devo/Dval/Dtest splits, paired-bootstrap LCB retention, and s_stop convergence — nothing penalizes harness code size, complexity, or prompt growth (I read §3.3 fully; no complexity regularizer appears). Topic &quot;orthogonality&quot; is LLM-judged by construction (TopicGPT prompted induction/refinement), not independently measured — topics could be semantic paraphrases the judge failed to merge. Budgets are small (4 candidates/module on AppWorld, 3 on Telecom), and the lifelong demonstration is three retrospective generations on one benchmark (windows reconstructed from the current arXiv index, not a live deployment). No search-compute cost is reported. Two backbone names — &quot;Qwen3.5-27B&quot; and &quot;GPT-5.4-mini&quot; — don&#x27;t match publicly released models as of my knowledge cutoff, so treat those results as the paper&#x27;s own reported numbers rather than independently reproducible. Residual failure families (requirement tracking, evidence coverage) were found by the same literature-driven search that found everything else, suggesting either no published mechanism targets them or the search missed it. I read the full main body (abstract through conclusion) and Appendix A (implementation details, lifelong protocol, analysis protocol, failure taxonomy); I skimmed appendices B–D contents and did not verify the selected-code listings in Appendix D.</p></div>
+<div class="nav"><span><a href="2609.39551.html">← Day 65: RankEvolve: A Reliable Multi-Agent Auto-Research Harness for</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.40306.html">Day 67: DynaHarness: A Dynamic Physical Harness for Self-Evolving Ro →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>
