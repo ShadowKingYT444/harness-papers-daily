@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keyword Harnesses Fail Open: A Cheap Diagnostic Ladder for Tool-Use Claims in Small Language Models — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>Keyword Harnesses Fail Open: A Cheap Diagnostic Ladder for Tool-Use Claims in Small Language Models</h1>
+</header>
+
+<div class="kicker">Day 78 · Dec 16, 2026</div>
+<h1 style="margin-top:6px">Keyword Harnesses Fail Open: A Cheap Diagnostic Ladder for Tool-Use Claims in Small Language Models</h1>
+<p class="meta">Juan S. Santillana · published 2026-10-01 · <a href="https://arxiv.org/abs/2610.02142">arXiv:2610.02142</a></p>
+<p><span class="badge rel3">relevant</span></p>
+<div class="card"><h2>One line</h2>
+<p>A cautionary case study: keyword-matching benchmark harnesses credited a 1.1B model for tool use it never performed — matched-architecture 600M and 1B models scored identically on the lenient metric (B4 0.660 vs 0.650) while verbatim-reproduction checks showed 6/6 vs 0/6 valid tool calls — and a ladder of strict, cheap diagnostics (verbatim reproduction, first-token probes, embedding-drift checks) that gates tool-use claims.</p>
+<h2>The problem</h2>
+<p>Keyword-matching benchmark harnesses fail open: they can credit small models for tool use they never perform. The paper documents this in a matched-architecture pair of Spanish security language models — same decoder, tokenizer, and special tokens — where the lenient metric couldn&#x27;t separate a model that genuinely emits tool calls from one that doesn&#x27;t.</p>
+<h2>How it works</h2>
+<p>The diagnostic ladder, each rung cheap (minutes of CPU): (1) <strong>Verbatim-reproduction checks</strong> on real training examples — the 600M emits valid tool calls with generalized arguments on 6/6, the 1B on 0/6 across checkpoints. (2) <strong>First-token probe</strong> — localizes the 1B&#x27;s failure to a missing prior (probability 10⁻⁴–10⁻⁵ on &lt;|tool_call|&gt;), and probes over 38 archived checkpoints show the web-heavy training phase erased an earlier memorized prior. (3) A <strong>targeted SFT recipe</strong> (diverse corpus, 5× higher learning rate, 2,202 steps, ~3.3 GPU-hours) repairs the 1B with three orders of magnitude fewer tokens than the failed 6B-token tool-SFT phase; valid emission rises 0.100 → 0.959 on all 269 corpus rows and beats the 600M on 238 unseen prompts (0.536 vs 0.428, p=0.004). (4) <strong>Embedding-drift check</strong> — 97.7% of the bf16 table remains bit-identical, so the repair lives in the surrounding network, not the trigger token&#x27;s embedding. Both models still over-trigger on negative prompts (answering without a call only 0.09/0.17 of the time).</p>
+<h2>Key results</h2>
+<p>The headline is the false positive itself: near-identical benchmark scores (0.660 vs 0.650) hiding a total capability gap (6/6 vs 0/6). The repair recipe is the constructive result: a small, diverse, high-LR SFT phase fixes what a large tool-SFT phase broke, and the diagnostic ladder costs minutes of CPU.</p>
+<h2>How it relates to adaptive decomposition</h2>
+<p>This is the evaluation-side companion to the harness-optimization story: if the harness that <em>measures</em> you fails open, every harness optimizer optimizing against it is optimizing a mirage. For the user&#x27;s mechanism specifically, the warning is sharp — a meta-controller that accepts/rejects component edits based on benchmark scores needs the measurement harness to be strict, or it will promote edits that game the metric rather than fix the mechanism. The first-token probe is also a nice minimal example of the kind of cheap, targeted diagnostic an agent-driven loop should run before expensive interventions: localize the fault precisely (a missing prior on one token), then intervene minimally. The paper&#x27;s &quot;fail open&quot; framing generalizes: any harness optimizer whose acceptance criterion is lenient is a keyword harness in disguise.</p>
+<h2>Limits and open questions</h2>
+<p>Single case study on two proprietary Spanish security models (VectraYX-600M/1B) from one independent researcher — no replication across model families or tool-use domains. The repair is demonstrated on the author&#x27;s own corpus; the &quot;mostly recites&quot; caveat on its own corpus rows suggests the repair is partly memorization. The ladder is diagnostic, not a fix for benchmark design — it tells you when a metric lies, not how to build one that doesn&#x27;t.</p></div>
+<div class="nav"><span><a href="2609.39578.html">← Day 77: Thinking Outside the Box: Can Language Models Rely on Extern</a></span><span><a href="../index.html">All papers</a></span><span></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

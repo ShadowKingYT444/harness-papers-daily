@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GUI-HARVEST: Self-Improving GUI Agents through Evidence-Driven Harness Evolution — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>GUI-HARVEST: Self-Improving GUI Agents through Evidence-Driven Harness Evolution</h1>
+</header>
+
+<div class="kicker">Day 70 · Dec 08, 2026</div>
+<h1 style="margin-top:6px">GUI-HARVEST: Self-Improving GUI Agents through Evidence-Driven Harness Evolution</h1>
+<p class="meta">Geyi Yang, Zikun Qu, Xiang Li, Zhiyong Wang, Min Zhang, Shipei Zeng, Zhongxiang Dai · published 2026-10-01 · <a href="https://arxiv.org/abs/2610.00948">arXiv:2610.00948</a></p>
+<p><span class="badge rel5">core mechanism</span></p>
+<div class="card"><h2>One line</h2>
+<p>An automatic harness optimizer for GUI agents with frozen backbones: repeated task executions feed four optimizer roles (Evidence Analyst → Cross-task Clusterer → Harness Engineer → Validator) that turn observed failures into reusable, behavior-validated code edits; Qwen3-VL-32B-Instruct gains +10.16 pp on OSWorld-Verified Test (53.18%), and it beats a GUI-adapted Self-Evolving Harness under the same backbone and initial harness.</p>
+<h2>The problem</h2>
+<p>GUI agents have an <em>executable</em> harness (how observations are assembled, actions executed, verification/recovery/termination controlled), and automatically optimizing it has three GUI-specific difficulties: (1) model intent must be reconciled with observed visual effects — a textual trace can claim success while a dialog stays open; (2) failures must be diagnosed under execution variability, where one bad run hides behind stochasticity; (3) task-specific findings must be lifted into reusable runtime changes, not one-off patches.</p>
+<h2>How it works</h2>
+<p>GUI-HARVEST runs a budgeted self-improvement loop (at most B=10 rounds, P=5 promotion attempts per harness state) with four roles. The <strong>Evidence Analyst</strong> compares K=3 repeated runs of the same task from clean environment snapshots, aligning text/actions/before-after screenshots per step via the GAFT toolkit, and produces findings that identify the decisive failed step with links to step-level evidence (a deterministic verifier checks citation consistency before retaining findings). The <strong>Cross-task Clusterer</strong> groups verified findings into open-vocabulary &quot;behavior modes&quot; — recurring mechanisms with a membership test and behavioral target, discovered without a fixed taxonomy, supported by at least two tasks. The <strong>Harness Engineer</strong> translates selected modes into bounded code patches, recording an update plan <em>before</em> GUI evaluation that links target modes to the source surface, the proposed edit, predicted observable behavioral effects, and invariants that must hold. The <strong>Validator</strong> runs L0/L1 code checks, GUI evaluation, and behavioral checks (did the predicted behavioral effect actually occur?), promoting candidates that pass and rolling back on rejection; an update ledger records edits, predictions, scores, and decisions to guide subsequent proposals. Search uses a 15-step budget, validation sees only aggregate scores, and the final harness is frozen for sealed-test evaluation.</p>
+<h2>Key results</h2>
+<p>On OSWorld-Verified across six frozen backbones, GUI-HARVEST improves Test and Full scores for all six under a unified protocol; Qwen3-VL-32B-Instruct gains +10.16 pp Test (53.18%) and +12.33 pp Full (50.94%). Gemini 3.1 Pro reaches 79.14% at 100 evaluation steps without per-task reruns. Evolved harnesses transfer to WindowsAgentArena at 50 steps without further optimization. With the same backbone and initial harness, GUI-HARVEST outperforms a GUI-adapted Self-Evolving Harness. Ablations: removing visual evidence is the biggest drop (to 44.54%), removing the Cross-task Clusterer costs ~7.5 pp, single-rollout diagnosis (K=1) costs 5.7–7.8 pp, and a hard-score-gate-only variant selects worse harnesses than the behavioral-check version. Code at github.com/GaryYang12345/GUI-HARVEST.</p>
+<h2>How it relates to adaptive decomposition</h2>
+<p>This is harness evolution done with serious engineering discipline, and several of its primitives map onto adaptive decomposition&#x27;s needs. The &quot;behavior mode&quot; abstraction — recurring mechanisms with membership tests, discovered across tasks rather than imposed by taxonomy — is a concrete answer to the granularity question: it is a discovered decomposition of failure space, one step short of a discovered decomposition of harness structure. The pre-registration discipline (engineer records predicted behavioral effects <em>before</em> evaluation, validator checks them) is the honest version of validation gating the user&#x27;s own loop needs: acceptance without validation was the named failure mode of the Self-Evolving Harness work this paper outperforms. Most relevant: the update ledger and promotion/rollback rule is a working instance of a meta-controller&#x27;s decision policy — accept, reject, retry differently. The contrast: the engineer edits are bounded patches to a fixed runtime surface, never a restructuring of the harness into new components; adaptive decomposition&#x27;s split/fuse is the more radical version of what GUI-HARVEST does conservatively.</p>
+<h2>Limits and open questions</h2>
+<p>All optimization evidence comes from OSWorld-Verified; the WindowsAgentArena transfer is a single checkpoint, not a repeated study. K=3 repeated rollouts per task is load-bearing (K=1 loses most of the gain), so the method is expensive where rollouts are — cost scaling to longer-horizon or API-billed tasks is unaddressed. The behavior modes are regenerated from the current harness&#x27;s executions after each promotion, but modes supported by only two tasks could still encode benchmark-specific quirks; the &quot;reusable&quot; claim rests on one transfer target. The engineer operates within a fixed capability manifest and bounded patches — genuinely structural harness redesign is out of scope.</p></div>
+<div class="nav"><span><a href="2610.00917.html">← Day 69: Finding the Right Fit: Model-Harness Interactions across Age</a></span><span><a href="../index.html">All papers</a></span><span><a href="2610.01766.html">Day 71: VideoEvolve: Evolving Agent Harnesses for Video Temporal Gro →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VideoEvolve: Evolving Agent Harnesses for Video Temporal Grounding — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>VideoEvolve: Evolving Agent Harnesses for Video Temporal Grounding</h1>
+</header>
+
+<div class="kicker">Day 71 · Dec 09, 2026</div>
+<h1 style="margin-top:6px">VideoEvolve: Evolving Agent Harnesses for Video Temporal Grounding</h1>
+<p class="meta">Bingjun Luo, Yuhuan Fan, Siqi Li · published 2026-10-01 · <a href="https://arxiv.org/abs/2610.01766">arXiv:2610.01766</a></p>
+<p><span class="badge rel5">core mechanism</span></p>
+<div class="card"><h2>One line</h2>
+<p>VideoEvolve automatically evolves the agent harness around a frozen video-language model for video temporal grounding, using a &quot;cloze-structured&quot; representation (fixed stage interfaces, evolvable internal workflows/instructions) and branch-guided evolution that keeps a retained code branch off the champion mainline; instruction refinement is the consistent source of gains, code evolution helps unevenly.</p>
+<h2>The problem</h2>
+<p>For agents built on frozen video-language models, the harness decides how queries guide temporal predictions and how those predictions get refined — but improving it manually means diagnosing grounding failures and coordinating changes to both agent workflows and instructions, where a fix for one failure can change behavior elsewhere.</p>
+<h2>How it works</h2>
+<p>VideoEvolve&#x27;s key device is the <strong>Cloze-Structured Harness Representation</strong>: the harness is organized into grounding stages (Observe → Propose → Cross-check → Arbitrate → Budget gate → Finalize) with fixed interfaces through which observations, interval hypotheses, and verification evidence pass, while the internal code and instructions of each stage are editable blanks an external coding agent can propose modifications for. <strong>Branch-Guided Harness Evolution</strong> organizes search around a current champion plus a retained code branch: a program that hasn&#x27;t yet replaced the champion can still be refined off the mainline, separating continued exploration from acceptance. Execution feedback guides local edits (including near-miss repair), and a validation gate decides promotion — rejected-but-eligible candidates provide a repair path rather than being discarded. Search history serves as alternative starting points (positioned relative to DGM&#x27;s archive, AutoHarness&#x27;s hypothesis tree, Meta-Harness&#x27;s artifact retention). Search uses 60 proposal slots / ~218k solver calls; once an endpoint is selected, deployment runs the fixed harness without the coding agent.</p>
+<h2>Key results</h2>
+<p>On ReXTime, full VideoEvolve improves R@.5 from 51.14 → 59.17 and mIoU 48.71 → 53.93; on TimeLens-Bench, 46.86 → 53.53 R@.5 and 45.68 → 50.73 mIoU. Component exchange shows evolved instructions alone and evolved code alone each help, with the full combination best — but the conditional gain from evolved code is larger on ReXTime than TimeLens-Bench, i.e. executable refinement&#x27;s value is setting-dependent. Deployment costs more calls/tokens than the seed harness, with the extra compute spent revisiting existing observations. Code at github.com/bingjunluo/VideoEvolve.</p>
+<h2>How it relates to adaptive decomposition</h2>
+<p>The cloze-structured representation is a designed-in version of the decomposition question: interfaces are fixed, internals evolve. It is the middle ground between ModularRSI&#x27;s five fixed modules and adaptive decomposition&#x27;s discovered structure — the authors fix <em>where</em> decomposition boundaries are and let evolution rewrite <em>within</em> them. The branch-guided retention of non-champion programs is a population/archival mechanism the user&#x27;s own loop could adopt: keeping a refined-but-not-yet-accepted branch is how you avoid the premature-commitment trap that kills evolutionary harness search. The finding that instruction evolution consistently helps while code evolution is uneven is directly relevant to adaptive decomposition&#x27;s operator design — the fuse/split operators act on structure, and this paper suggests structural (code) edits are the brittle ones, so a discovered decomposition should probably evolve instructions aggressively and structural changes conservatively. Also notable: the validation-gated promotion with repair paths for rejected candidates is the honest acceptance discipline the Self-Evolving Harness paper lacked.</p>
+<h2>Limits and open questions</h2>
+<p>The setting-dependence of evolved code is flagged but unexplained — the paper shows code evolution helps on ReXTime and less on TimeLens-Bench without diagnosing why, which is exactly the failure-analysis gap adaptive decomposition&#x27;s credit assignment would need to fill. All evidence is video temporal grounding with one frozen VLM family; whether the cloze representation ports to coding, tool-use, or GUI harnesses is untested. The 218k-solver-call search budget is heavy for a single task family, and the paper separates discovery cost from deployment cost but doesn&#x27;t compare against cheaper baselines (e.g. instruction-only search with the same budget).</p></div>
+<div class="nav"><span><a href="2610.00948.html">← Day 70: GUI-HARVEST: Self-Improving GUI Agents through Evidence-Driv</a></span><span><a href="../index.html">All papers</a></span><span><a href="2610.00383.html">Day 72: EvoGen-Harness: Learning Where and How to Evolve Image-Gener →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

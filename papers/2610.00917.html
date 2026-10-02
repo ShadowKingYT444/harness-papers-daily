@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finding the Right Fit: Model-Harness Interactions across Agent Tasks — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>Finding the Right Fit: Model-Harness Interactions across Agent Tasks</h1>
+</header>
+
+<div class="kicker">Day 69 · Dec 07, 2026</div>
+<h1 style="margin-top:6px">Finding the Right Fit: Model-Harness Interactions across Agent Tasks</h1>
+<p class="meta">Yixuan Li, Yiyun Zhou, Yao Long, Teng Fuchao Yang, Zhiyi Lyu, Xuyu Dong, Feng Chen, Bo An · published 2026-10-01 · <a href="https://arxiv.org/abs/2610.00917">arXiv:2610.00917</a></p>
+<p><span class="badge rel5">core mechanism</span></p>
+<div class="card"><h2>One line</h2>
+<p>A 66-configuration study (4 configurable harnesses × 5 models × 3 benchmarks, plus native vendor pairings) showing model rankings reverse across harnesses — Claude beats GPT by 7.94 points in OpenHands but loses by 30.16 in PI on Terminal-Bench 4 — with matched trajectories tying the difference to how the harness hands failures back to the model.</p>
+<h2>The problem</h2>
+<p>Choosing an agent system means choosing a model <em>and</em> the harness it acts through, but leaderboards score the model alone. The paper asks whether a strong model, a strong harness, or a strong pairing stays strong when the setting changes — and what in the harness drives the difference.</p>
+<h2>How it works</h2>
+<p>The configurable grid is 4 harnesses (OpenHands, DeepSeek Harness, PI, openJiuwen) × 5 models × 3 benchmarks (TUA-Bench, ALE-CLI, Terminal-Bench 4) = 60 entries, plus native Codex–GPT and Claude Code–Claude pairings. Beyond scores, the authors release adapters running all six harnesses on all three benchmarks, cost-accounting code, and all 6,204 scored trajectories in a common format, and analyze matched trajectories — the same task under different configurations — to attribute fit differences to harness behavior: how failures are returned, how interrupted work is continued, and when the task is declared finished. They also decompose each consequential step by <em>initiator</em>: the model acting on its own, the model acting after a harness message, or the harness acting on the model&#x27;s behalf.</p>
+<h2>Key results</h2>
+<p>Model rankings reverse across harnesses: on Terminal-Bench 4, Claude leads GPT by 7.94 points under OpenHands but trails by 30.16 under PI. For four of the five models, the best harness changes from one benchmark to another — yet some pairings hold (openJiuwen gives Kimi its highest score on all three). A model&#x27;s own vendor harness is not reliably its best, and higher cost per run does not reliably buy score (GPT under PI vs. DeepSeek Harness at less than a quarter of the cost per point). The trajectory analysis gives the mechanism: models start nearly identically, and fit depends on whether the harness hands failures back in a form the model can use — GPT thrives on PI&#x27;s lean scaffold while Kimi, which makes malformed tool calls, does best in openJiuwen&#x27;s more forgiving handling. The initiator labeling matters for training: model-initiated repair after failure is the clearest signal, while harness-performed operations (e.g. OpenHands&#x27; stuck detector silently ending a run) record the configuration&#x27;s outcome but teach nothing about what the model would have done with feedback. All code, adapters, and trajectories are released.</p>
+<h2>How it relates to adaptive decomposition</h2>
+<p>This is the strongest empirical case yet for why harness optimization cannot be model-agnostic — and therefore why the decomposition must be discovered per model, not designed once. The ranking reversal is the headline: if the best harness changes per model and per task, then any fixed, human-designed harness structure (including ModularRSI&#x27;s five modules, and even the user&#x27;s own mechanism if it converged to one fixed decomposition) is optimizing a moving target. The paper&#x27;s matched-trajectory analysis does by hand what an adaptive meta-controller should do automatically: attribute a failure to the harness component responsible (error return, retry policy, stopping rule) rather than to &quot;the harness.&quot; Two concrete reuses: (a) the initiator labeling (model-initiated vs. harness-message vs. harness-performed) is a cheap credit-assignment primitive for split/fuse decisions — it separates &quot;the harness failed the model&quot; from &quot;the model failed the task&quot;; (b) the finding that fit is <em>pairing</em>-specific argues the user&#x27;s mechanism should co-evolve the decomposition with the model under it, not converge to one universal structure. The natural next step the authors name — choosing configurations automatically for unseen tasks — is essentially a router over harness decompositions, which is one level below adaptive decomposition&#x27;s restructuring but in the same family.</p>
+<h2>Limits and open questions</h2>
+<p>Five models and four harnesses is a wide grid but still a small sample of both spaces; the reversals are demonstrated, not explained at the level of which exact harness component causes which reversal. The initiator labeling is done for analysis, not validated as a training signal (the authors gesture at implications but don&#x27;t train on it). Cost accounting is per-configuration, not per-outcome, so the cost-vs-score comparison is suggestive rather than controlled. All three benchmarks are terminal/agent-coding flavored — whether fit reversals look the same in GUI, embodied, or long-horizon professional work is open.</p></div>
+<div class="nav"><span><a href="2610.00906.html">← Day 68: ActiveSaddler: Automated Curriculum Learning for Agent Harne</a></span><span><a href="../index.html">All papers</a></span><span><a href="2610.00948.html">Day 70: GUI-HARVEST: Self-Improving GUI Agents through Evidence-Driv →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

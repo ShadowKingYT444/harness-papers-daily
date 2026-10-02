@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thinking Outside the Box: Can Language Models Rely on External Guidance Selectively? — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>Thinking Outside the Box: Can Language Models Rely on External Guidance Selectively?</h1>
+</header>
+
+<div class="kicker">Day 77 · Dec 15, 2026</div>
+<h1 style="margin-top:6px">Thinking Outside the Box: Can Language Models Rely on External Guidance Selectively?</h1>
+<p class="meta">Minghan Wang, Boyuan Wang, Jinhang Zuo, Yuxin Tao, Fang Kong · published 2026-09-30 · <a href="https://arxiv.org/abs/2609.39578">arXiv:2609.39578</a></p>
+<p><span class="badge rel3">relevant</span></p>
+<div class="card"><h2>One line</h2>
+<p>Agent harnesses improve models with human-designed workflows, but as models get stronger, bad guidance increasingly constrains them; Box²-Bench holds model and task fixed while varying workflow reliability, showing frontier models benefit from good workflows yet stay vulnerable to misleading ones — and that counterfactual RL training (train on bad workflows, test on good) can teach selective reliance.</p>
+<h2>The problem</h2>
+<p>Harness workflows are usually human-designed and fixed, and models are trained to follow them. As models grow more capable, unreliable guidance can constrain rather than help: the model needs the ability to benefit from useful guidance while overriding unreliable guidance — &quot;thinking outside the box.&quot; No existing benchmark isolates this, because model, task, and workflow quality usually vary together.</p>
+<h2>How it works</h2>
+<p><strong>Box²-Bench</strong> fixes the model and task and varies only workflow reliability (good vs. bad workflows, self-solving baselines), measuring how performance shifts. The training experiments test whether selective reliance can be learned: two open-weight models are trained with bad workflows while good workflows are reserved for evaluation, exploring counterfactual training and reinforcement learning strategies. The paper also tests generalization beyond workflows to other fallible external information (e.g. peer correction).</p>
+<h2>Key results</h2>
+<p>On Box²-Bench, frontier models often benefit from reliable guidance but remain vulnerable when it is misleading or becomes unreliable mid-task (results shown on AIME 2026 and WebShop-style tasks). Training can shift the balance: counterfactual training and RL move models toward greater use of helpful workflows while resisting bad ones, and the selective-reliance behavior generalizes to other forms of external information. The paper frames reliance on fallible external information as a reliability dimension not captured by task performance alone.</p>
+<h2>How it relates to adaptive decomposition</h2>
+<p>This paper is about the <em>model–harness trust boundary</em>, which is the dual of adaptive decomposition&#x27;s structure question. An evolved harness is still external guidance the model must decide how much to trust: if the user&#x27;s mechanism restructures the harness around a strong model, the model needs exactly the &quot;thinking outside the box&quot; skill — following the harness when it&#x27;s right, overriding it when it&#x27;s wrong. Two implications: (a) as the harness improves through evolution, the optimal reliance policy shifts — a static &quot;follow the harness&quot; policy will eventually cap a strong model, which is a reason the decomposition should keep being re-examined rather than frozen; (b) the counterfactual training recipe (train under bad guidance, evaluate under good) is a robustness discipline the user&#x27;s loop could adopt for its evolved harnesses: an evolved harness that only works when the model blindly obeys is brittle. The &quot;reliability dimension not captured by task performance&quot; point also warns against the user&#x27;s own evaluation: a harness that scores well but requires total model compliance is a different, weaker kind of success.</p>
+<h2>Limits and open questions</h2>
+<p>The bench varies workflow reliability as good/bad, a coarse binary — real harness guidance degrades in subtler ways (partially wrong, stale, overconfident). Training results are on two open-weight models; whether frontier models learn selective reliance the same way is untested. The generalization claim to other external information (peer correction) is reported briefly. And the paper treats the harness as fixed external guidance — it doesn&#x27;t ask what happens when the harness itself is evolving underneath the model, which is the setting where selective reliance matters most.</p></div>
+<div class="nav"><span><a href="2610.02200.html">← Day 76: VISTA: A Visual Harness for Reasoning in an Interactive Worl</a></span><span><a href="../index.html">All papers</a></span><span><a href="2610.02142.html">Day 78: Keyword Harnesses Fail Open: A Cheap Diagnostic Ladder for T →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

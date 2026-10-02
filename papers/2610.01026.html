@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>It Takes Workflows to Evolve Better Workflows — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>It Takes Workflows to Evolve Better Workflows</h1>
+</header>
+
+<div class="kicker">Day 73 · Dec 11, 2026</div>
+<h1 style="margin-top:6px">It Takes Workflows to Evolve Better Workflows</h1>
+<p class="meta">Xuehang Guo, Haoyu Wang, Haifeng Chen, Yangyi Chen, Zhenhailong Wang, Qingyun Wang · published 2026-10-01 · <a href="https://arxiv.org/abs/2610.01026">arXiv:2610.01026</a></p>
+<p><span class="badge rel4">highly relevant</span></p>
+<div class="card"><h2>One line</h2>
+<p>FloWright attacks the blind spot in workflow-optimization work — training only the workflow <em>generator</em> while executor agents stay fixed — by treating the workflow itself as a harness for optimization: a hierarchical, structure-aware reward with role-level credit localization lets one role self-evolve and two or more roles co-evolve with no extra models, labels, or executions; co-evolving gains +5.03% vs +2.83% for single-role optimization (up to +7.41% overall on small open models).</p>
+<h2>The problem</h2>
+<p>Multi-agent workflows coordinate specialized agents, and recent methods train LLMs to construct better workflows from execution outcomes — but they optimize only the workflow generator, while the agents that build or execute each workflow remain fixed even though every outcome depends on all of them. Extending training is hard for two reasons: the agents are coupled (one&#x27;s output is another&#x27;s input), and a workflow&#x27;s outcome is a single sparse score that can&#x27;t say which agent caused a failure. A further complaint: workflows are usually trained and evaluated on data a single agent can already handle, so &quot;workflow gains&quot; are untested where workflows actually matter.</p>
+<h2>How it works</h2>
+<p>FloWright (project page xhguo7.github.io/FloWright) turns the sparse workflow outcome into dense role-level feedback. <strong>Credit localization</strong>: each role authors a subset of nodes in the execution trace, and credit charges each role only for the failures of its own nodes — read from the execution trace at no extra cost (no additional models, labels, or rollouts). <strong>Hierarchical, structure-aware reward</strong>: a staged reward ladder measures how far a workflow reaches (local → global), with the structure-aware credit term extending it. With credit localized, the roles can <strong>co-evolve</strong> in a coupled on-policy loop: upstream proposes workflows, downstream executes, and each role&#x27;s credit is separated by the nodes it authored — so two or more roles train jointly instead of one. <strong>DataWright</strong> addresses the difficulty complaint: an adaptive data-hardening approach converting existing datasets into workflow-level tasks too hard for single agents.</p>
+<h2>Key results</h2>
+<p>Across document, slide, chart, code, math, and finance tasks, small open models trained with FloWright improve up to +7.41%; co-evolving multiple roles (+5.03%) beats optimizing one role alone (+2.83%).</p>
+<h2>How it relates to adaptive decomposition</h2>
+<p>This paper names the failure mode that adaptive decomposition&#x27;s credit assignment must solve: when a composite system fails, the outcome score doesn&#x27;t say which part is at fault. FloWright&#x27;s answer — charge each role for the failures of the nodes it authored — is a structural credit rule the user&#x27;s meta-controller could adopt almost verbatim for deciding which component to split: blame follows authorship of the failed subtrace. The co-evolution framing is also directly parallel: adaptive decomposition&#x27;s split (divide a failing component) and fuse (merge working ones) are both ways of restructuring <em>coupled</em> components, and FloWright shows coupled training beats isolated optimization — a caution against evolving harness components independently without accounting for their coupling (ModularRSI needed an integration epoch for the same reason). The contrast: FloWright&#x27;s &quot;roles&quot; are fixed agent roles in a workflow, not a discovered decomposition; the structure is given, the parameters co-evolve. Adaptive decomposition inverts it: the parameters are mostly fixed, the structure is discovered.</p>
+<h2>Limits and open questions</h2>
+<p>Credit-by-authorship assumes failures are localizable to nodes — cascading failures where one role&#x27;s bad input dooms a downstream role&#x27;s nodes will misattribute blame, and the paper doesn&#x27;t quantify this. All results are on small open models; whether co-evolution scales to frontier models (where each training iteration is expensive) is untested. DataWright&#x27;s &quot;workflow-level difficulty&quot; is constructed by the authors&#x27; hardening procedure, so the headline tasks are hard by construction rather than by natural distribution. The no-extra-cost credit claim is about rollouts/models/labels, but the method still needs full execution traces with attributable nodes — the harness must be instrumented for it.</p></div>
+<div class="nav"><span><a href="2610.00383.html">← Day 72: EvoGen-Harness: Learning Where and How to Evolve Image-Gener</a></span><span><a href="../index.html">All papers</a></span><span><a href="2610.01235.html">Day 74: Harness Annealing: Learning to Act with Less External Contro →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>

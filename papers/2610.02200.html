@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VISTA: A Visual Harness for Reasoning in an Interactive World — Harness Papers Daily</title>
+<style>
+:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
+        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       margin:0; line-height:1.65; }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
+header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
+header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+header.site h1 { margin:8px 0 4px; font-size:30px; }
+header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
+.card.today { border-color:var(--accent2); }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
+         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
+.meta { color:var(--muted); font-size:14px; }
+h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
+pre code { display:block; padding:14px; overflow-x:auto; }
+table.sched { width:100%; border-collapse:collapse; font-size:14px; }
+table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
+table.sched tr.today td { background:#3fb95014; }
+table.sched tr.past td { color:var(--muted); }
+.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
+.grid .card .meta { font-size:12.5px; }
+footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
+.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+</style></head>
+<body><div class="wrap">
+<header class="site">
+<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1>VISTA: A Visual Harness for Reasoning in an Interactive World</h1>
+</header>
+
+<div class="kicker">Day 76 · Dec 14, 2026</div>
+<h1 style="margin-top:6px">VISTA: A Visual Harness for Reasoning in an Interactive World</h1>
+<p class="meta">Qiushi Han, Keya Hu, Linlu Qiu, Cathy Wu, Kaiming He · published 2026-10-01 · <a href="https://arxiv.org/abs/2610.02200">arXiv:2610.02200</a></p>
+<p><span class="badge rel4">highly relevant</span></p>
+<div class="card"><h2>One line</h2>
+<p>VISTA is a visual harness giving a general multimodal model long-horizon vision: the agent perceives rendered images, the harness keeps a lossless visual memory of every frame in original form, and the model actively retrieves and reorganizes its visual input as it reasons — lifting Claude Opus 5.0&#x27;s ARC-AGI-3 Relative Human Action Efficiency from 40.68 to a perfect 100.00 (all 25 public games, 57.4% fewer actions than first-time humans).</p>
+<h2>The problem</h2>
+<p>ARC-AGI-3 agents typically get textual or symbolic environment representations; compressing the world into text (or into the model&#x27;s context) loses the appearance and spatial relations the reasoning needs, and prior ARC-AGI-3 approaches rely on program synthesis abstractions that get harder as environments grow visually complex. The claim: multimodal models already possess strong reasoning, and the right harness — one that preserves raw visual evidence — unlocks it.</p>
+<h2>How it works</h2>
+<p>Three visual harness components. (1) <strong>Visual observations</strong>: rendered images instead of textual grids. (2) <strong>Lossless visual memory</strong>: every frame returned by the environment, including intermediate animation frames, stored in original form, indexed by turn and frame number, persisting across the episode. (3) <strong>Visual inspection tools</strong>: the agent actively requests enlarged views of arbitrary rectangular regions and revisits frames across time, reorganizing its visual input mid-reasoning; automatic per-action frames are reduced (final frame only) so the model inspects on demand rather than drowning in frames. Plus supporting scaffolds: continuous conversation with compaction past context limits, and revisable notes (GUIDE.md, WORKING.md) where the agent builds a compact model of the game. The paper&#x27;s harness-ladder ablation adds components cumulatively: text grid → 2D image → raised action/time limits → continuous conversation → notes → lossless memory + inspection → pixel readout.</p>
+<h2>Key results</h2>
+<p>ARC-AGI-3: Claude Opus 5.0 RHAE 40.68 → 100.00 with VISTA, completing all 25 public games using 57.4% fewer actions than first-time human participants (the official textual-grid implementation scores 13.33). The ladder ablation (on GPT-5.6 Sol) shows cumulative gains at each step, with lossless memory + inspection among the largest jumps. The design extends with minimal adaptation to three additional visual-game/puzzle benchmarks, substantially beating same-model minimal-harness baselines. An early version appeared as a blogpost (vista-research.github.io, Aug 2026).</p>
+<h2>How it relates to adaptive decomposition</h2>
+<p>VISTA is a fixed, hand-designed harness — but its <em>lesson</em> is about what a harness is for: preserving raw evidence and letting the model decide what to attend to, rather than pre-compressing the world into the designer&#x27;s abstraction. That is the same principle adaptive decomposition applies to harness structure: don&#x27;t fix the abstraction in advance; keep the raw material and let the agent organize it. The lossless-memory discipline also maps onto a concrete need in the user&#x27;s loop: an evolving harness needs a faithful, uncompressed record of what actually happened (trajectories, tool outputs) to attribute failures correctly — VISTA argues compression is where reasoning dies. The ablation ladder is itself a mini decomposition study: each component&#x27;s marginal contribution is measured, which is the empirical attitude the user&#x27;s split/fuse decisions need. The contrast is obvious and useful: VISTA optimizes the <em>observation channel</em> of a fixed harness; adaptive decomposition optimizes the <em>structure</em> of the harness. Both say the same thing: the model is stronger than the scaffolding usually lets it be.</p>
+<h2>Limits and open questions</h2>
+<p>Stated by the authors: the models used were released after the public ARC-AGI-3 games, so training contamination cannot be ruled out — the private set would be the real test. The harness ladder is measured on one model (GPT-5.6 Sol) while the headline number is another (Claude Opus 5.0). The three additional benchmarks are visual games/puzzles in the same family; real-world visual environments (GUI, robotics) are future work. And the &quot;minimal adaptation&quot; claim for new environments is asserted more than measured.</p></div>
+<div class="nav"><span><a href="2610.02001.html">← Day 75: Mingbird: A Local-First Agent Harness Enabling Small Open Mo</a></span><span><a href="../index.html">All papers</a></span><span><a href="2609.39578.html">Day 77: Thinking Outside the Box: Can Language Models Rely on Extern →</a></span></div>
+
+<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
+Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+</div></body></html>
