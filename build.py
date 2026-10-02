@@ -1,64 +1,77 @@
 #!/usr/bin/env python3
-"""Build a static GitHub-Pages-ready site from _analyses/*.md.
+"""Build the published Harness Papers Daily site.
 
-Output: site/ directory with index.html + papers/<id>.html + style.css
-Daily digest: papers ordered by (relevance desc, published desc), one per day,
-starting 2026-09-30.
+Only papers with relevance 4 or 5 are published.
+Source notes stay in _analyses so lower-tier intake notes can be re-reviewed later.
+The public reader uses one paper.html page plus papers-data.js. Mermaid diagrams
+render in the browser.
 """
-import os, re, html
+import os, re, json, html, shutil
 from datetime import date, timedelta
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-SRC = "/home/hatch/workspace/harness-papers-daily/_analyses"
-OUT = "/home/hatch/workspace/harness-papers-daily"
-PAPERS_OUT = os.path.join(OUT, "papers")
+SRC = os.path.join(ROOT, "_analyses")
 START = date(2026, 9, 30)
+MIN_RELEVANCE = 4
+SCHED_PATH = os.path.join(ROOT, "schedule.json")
 
-# ---------- minimal markdown -> html ----------
-def md_inline(s):
-    s = html.escape(s)
-    s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
-    s = re.sub(r"\*(.+?)\*", r"<em>\1</em>", s)
-    s = re.sub(r"`(.+?)`", r"<code>\1</code>", s)
-    s = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', s)
-    return s
+STYLE = r"""
+:root {
+  --bg:#0d1117; --panel:#161b22; --panel2:#0f141b; --border:#30363d;
+  --fg:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  line-height:1.68;
+}
+a { color:var(--accent); text-decoration:none; }
+a:hover { text-decoration:underline; }
+.wrap { max-width:940px; margin:0 auto; padding:0 22px 64px; }
+header.site { padding:28px 0 18px; border-bottom:1px solid var(--border); margin-bottom:26px; }
+.brand { color:var(--muted); font-size:13px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+h1 { font-size:32px; line-height:1.2; margin:8px 0; }
+h2 { margin-top:34px; font-size:22px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+h3 { font-size:17px; margin-top:26px; color:var(--accent); }
+p { max-width:78ch; }
+.meta, .muted { color:var(--muted); font-size:14px; }
+.card {
+  background:var(--panel); border:1px solid var(--border); border-radius:12px;
+  padding:20px 22px; margin:16px 0;
+}
+.card.core { border-color:#f778ba55; }
+.card.high { border-color:#ffa65755; }
+.badge {
+  display:inline-block; border:1px solid var(--border); border-radius:999px;
+  padding:2px 10px; font-size:12px; font-weight:700; margin-right:8px;
+}
+.badge.rel5 { color:#f778ba; border-color:#f778ba55; }
+.badge.rel4 { color:#ffa657; border-color:#ffa65755; }
+.kicker { color:var(--green); font-weight:700; font-size:13px; letter-spacing:.08em; text-transform:uppercase; }
+table { width:100%; border-collapse:collapse; font-size:14px; }
+th, td { text-align:left; padding:10px; border-bottom:1px solid var(--border); vertical-align:top; }
+tr.today td { background:#3fb95014; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+.grid .card { margin:0; }
+.grid h3 { margin:0 0 8px; color:var(--fg); }
+.reader { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:24px; }
+.reader li { margin:6px 0; }
+.reader code { background:var(--panel2); border:1px solid var(--border); border-radius:6px; padding:1px 6px; }
+.mermaid {
+  background:var(--panel2); border:1px solid var(--border); border-radius:10px;
+  padding:16px; margin:18px 0; overflow-x:auto;
+}
+.nav { display:flex; justify-content:space-between; gap:16px; margin-top:28px; padding-top:18px; border-top:1px solid var(--border); }
+footer { margin-top:48px; padding-top:16px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+@media (max-width:700px) {
+  table .datecol { display:none; }
+  th, td { padding:8px 6px; }
+  .nav { flex-direction:column; }
+}
+"""
 
-def md_block(text):
-    out, para, in_list = [], [], False
-    def flush_para():
-        if para:
-            out.append("<p>" + " ".join(md_inline(l) for l in para) + "</p>")
-            para.clear()
-    def close_list():
-        nonlocal in_list
-        if in_list:
-            out.append("</ul>")
-            in_list = False
-    for line in text.split("\n"):
-        line = line.rstrip()
-        if not line.strip():
-            flush_para(); close_list(); continue
-        m = re.match(r"^#{2,3}\s+(.*)", line)
-        if m:
-            flush_para(); close_list()
-            lvl = 2 if line.startswith("## ") else 3
-            out.append(f"<h{lvl}>{md_inline(m.group(1))}</h{lvl}>")
-            continue
-        if re.match(r"^[-*]\s+", line):
-            flush_para()
-            if not in_list:
-                out.append("<ul>"); in_list = True
-            out.append("<li>" + md_inline(re.sub(r"^[-*]\s+", "", line)) + "</li>")
-            continue
-        if re.match(r"^\d+\.\s+", line):
-            flush_para()
-            out.append("<p class='num'>" + md_inline(line) + "</p>")
-            continue
-        para.append(line)
-    flush_para(); close_list()
-    return "\n".join(out)
-
-def parse(path):
+def parse_md(path):
     raw = open(path, encoding="utf-8").read()
     fm, body = {}, raw
     m = re.match(r"^---\n(.*?)\n---\n(.*)$", raw, re.S)
@@ -67,167 +80,158 @@ def parse(path):
             if ":" in line:
                 k, v = line.split(":", 1)
                 fm[k.strip()] = v.strip().strip('"')
-        body = m.group(2)
+        body = m.group(2).strip()
     return fm, body
 
-# ---------- load papers ----------
 papers = []
 for fn in sorted(os.listdir(SRC)):
     if not fn.endswith(".md"):
         continue
-    fm, body = parse(os.path.join(SRC, fn))
+    fm, body = parse_md(os.path.join(SRC, fn))
+    relevance = int(fm.get("relevance", "1"))
+    if relevance < MIN_RELEVANCE:
+        continue
     papers.append({
         "id": fm.get("arxiv_id", fn[:-3]),
         "title": fm.get("title", fn[:-3]),
         "authors": fm.get("authors", "Unknown"),
         "published": fm.get("published", ""),
         "url": fm.get("arxiv_url", "https://arxiv.org/abs/" + fn[:-3]),
-        "relevance": int(fm.get("relevance", "1")),
+        "relevance": relevance,
         "body": body,
     })
 
-# digest order: stable day assignments in schedule.json; new papers appended by relevance
-import json as _json
-SCHED_PATH = os.path.join(OUT, "schedule.json")
-sched = {}
+old_sched = {}
 if os.path.exists(SCHED_PATH):
     try:
-        sched = _json.load(open(SCHED_PATH))
+        old_sched = json.load(open(SCHED_PATH, encoding="utf-8"))
     except Exception:
-        sched = {}
-# drop ids no longer present
-known = {p["id"] for p in papers}
-sched = {k: v for k, v in sched.items() if k in known}
-next_day = max(sched.values()) + 1 if sched else 1
-new_ones = sorted([p for p in papers if p["id"] not in sched],
-                  key=lambda p: (-p["relevance"], p["published"]))
-for p in new_ones:
-    sched[p["id"]] = next_day
-    next_day += 1
-_json.dump(sched, open(SCHED_PATH, "w"), indent=1)
-papers.sort(key=lambda p: sched[p["id"]])
+        old_sched = {}
+
+papers.sort(key=lambda p: (old_sched.get(p["id"], 10**9), -p["relevance"], p["published"], p["id"]))
+for i, p in enumerate(papers, start=1):
+    p["day"] = i
+    p["date"] = (START + timedelta(days=i - 1)).isoformat()
+
+new_sched = {p["id"]: p["day"] for p in papers}
+with open(SCHED_PATH, "w", encoding="utf-8") as f:
+    json.dump(new_sched, f, indent=1)
+    f.write("\n")
+
+# The new reader does not need one generated HTML file per paper.
+legacy_dir = os.path.join(ROOT, "papers")
+if os.path.isdir(legacy_dir):
+    for fn in os.listdir(legacy_dir):
+        if fn.endswith(".html"):
+            os.remove(os.path.join(legacy_dir, fn))
+
+with open(os.path.join(ROOT, "papers-data.js"), "w", encoding="utf-8") as f:
+    f.write("window.PAPERS = ")
+    json.dump(papers, f, ensure_ascii=False)
+    f.write(";\n")
+
+labels = {5:"core mechanism", 4:"highly relevant"}
+today = date.today()
+rows = []
+cards = []
 for p in papers:
-    p["day"] = sched[p["id"]]
-    p["date"] = START + timedelta(days=p["day"] - 1)
+    pdate = date.fromisoformat(p["date"])
+    cls = "today" if pdate == today else ""
+    link = "paper.html?id=" + p["id"]
+    badge = f'<span class="badge rel{p["relevance"]}">{labels[p["relevance"]]}</span>'
+    rows.append(
+        f'<tr class="{cls}"><td><strong>Day {p["day"]}</strong></td>'
+        f'<td class="datecol">{pdate.strftime("%a %b %d")}</td>'
+        f'<td><a href="{link}">{html.escape(p["title"])}</a></td><td>{badge}</td></tr>'
+    )
+    cards.append(
+        f'<div class="card {"core" if p["relevance"] == 5 else "high"}">'
+        f'<h3><a href="{link}">{html.escape(p["title"])}</a></h3>'
+        f'<div class="meta">{html.escape(p["authors"].split(",")[0])} et al.</div>'
+        f'<p>{badge}</p></div>'
+    )
 
-os.makedirs(PAPERS_OUT, exist_ok=True)
-
-# ---------- shared chrome ----------
-CSS = open(os.path.join(ROOT, "assets_stub.css")).read() if os.path.exists(os.path.join(ROOT, "assets_stub.css")) else ""
-
-STYLE = """
-:root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --muted:#8b949e;
-        --accent:#58a6ff; --accent2:#3fb950; --warn:#d29922; }
-* { box-sizing:border-box; }
-body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
-       margin:0; line-height:1.65; }
-a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
-.wrap { max-width:860px; margin:0 auto; padding:0 20px 60px; }
-header.site { border-bottom:1px solid var(--border); padding:28px 0 18px; margin-bottom:28px; }
-header.site .brand { font-size:15px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
-header.site h1 { margin:8px 0 4px; font-size:30px; }
-header.site p { color:var(--muted); margin:6px 0 0; max-width:640px; }
-.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin:16px 0; }
-.card.today { border-color:var(--accent2); }
-.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:20px;
-         border:1px solid var(--border); color:var(--muted); margin-right:8px; }
-.badge.rel5 { color:#f778ba; border-color:#f778ba55; } .badge.rel4 { color:#ffa657; border-color:#ffa65755; }
-.badge.rel3 { color:var(--accent); border-color:#58a6ff55; } .badge.rel2,.badge.rel1 { color:var(--muted); }
-.meta { color:var(--muted); font-size:14px; }
-h2 { margin-top:34px; font-size:22px; border-bottom:1px solid var(--border); padding-bottom:8px; }
-h3 { font-size:17px; margin-top:26px; color:var(--accent); }
-code { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:1px 6px; font-size:13px; }
-pre code { display:block; padding:14px; overflow-x:auto; }
-table.sched { width:100%; border-collapse:collapse; font-size:14px; }
-table.sched th, table.sched td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); }
-table.sched tr.today td { background:#3fb95014; }
-table.sched tr.past td { color:var(--muted); }
-.nav { display:flex; justify-content:space-between; margin-top:34px; padding-top:18px; border-top:1px solid var(--border); }
-.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
-.grid .card { margin:0; padding:14px 16px; } .grid .card h4 { margin:0 0 6px; font-size:15px; }
-.grid .card .meta { font-size:12.5px; }
-footer { margin-top:50px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:16px; }
-.kicker { color:var(--accent2); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
-"""
-
-def page(title, body_html, extra_head=""):
-    return f"""<!DOCTYPE html>
+first = papers[0]
+index_html = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{html.escape(title)} — Harness Papers Daily</title>
-<style>{STYLE}</style>{extra_head}</head>
+<title>Harness Papers Daily</title><style>{STYLE}</style></head>
 <body><div class="wrap">
-<header class="site">
-<div class="brand"><a href="../index.html" style="color:inherit">Harness Papers Daily</a></div>
-<h1>{html.escape(title)}</h1>
-</header>
-{body_html}
-<footer>Deep-dive notes on agent-harness optimization research, one paper a day.
-Analyses are study notes, not affiliated with the papers' authors. Links point to arXiv.</footer>
+<header class="site"><div class="brand">Harness Papers Daily</div>
+<h1>Core papers for RHEvolution</h1>
+<p class="muted">A focused reading set on agent-harness optimization and adaptive decomposition.</p></header>
+<p>This site publishes only papers already labeled <strong>core mechanism</strong> or <strong>highly relevant</strong>.
+Each explanation uses simple technical English, defines key sub-concepts, and includes a small optimization-loop diagram.</p>
+<div class="card core"><div class="kicker">Start here · Day 1</div>
+<h3><a href="paper.html?id={first["id"]}">{html.escape(first["title"])}</a></h3>
+<p>{labels[first["relevance"]]}. This paper is the clearest starting point for component-level harness evolution.</p></div>
+<h2>Reading schedule · {len(papers)} papers</h2>
+<table><tr><th>Day</th><th class="datecol">Date</th><th>Paper</th><th>Relevance</th></tr>{''.join(rows)}</table>
+<h2>Browse the focused set</h2><div class="grid">{''.join(cards)}</div>
+<footer>Only relevance 4–5 papers are published. Lower-tier intake notes are not shown on the site.</footer>
 </div></body></html>"""
+open(os.path.join(ROOT, "index.html"), "w", encoding="utf-8").write(index_html)
 
-def rel_badge(r):
-    labels = {5: "core mechanism", 4: "highly relevant", 3: "relevant", 2: "context", 1: "background"}
-    return f'<span class="badge rel{r}">{labels.get(r,"")}</span>'
+paper_html = f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper · Harness Papers Daily</title><style>{STYLE}</style>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+window.__mermaid = mermaid;
+</script></head>
+<body><div class="wrap">
+<header class="site"><div class="brand"><a href="index.html" style="color:inherit">Harness Papers Daily</a></div>
+<h1 id="title">Loading paper…</h1><div id="meta" class="meta"></div></header>
+<div id="reader" class="reader"></div>
+<div id="nav" class="nav"></div>
+<footer>Focused study notes for RHEvolution. Paper links point to arXiv.</footer>
+</div>
+<script src="papers-data.js"></script>
+<script>
+(function() {
+  const q = new URLSearchParams(location.search);
+  const id = q.get("id");
+  const papers = window.PAPERS || [];
+  const i = papers.findIndex(p => p.id === id);
+  const p = papers[i];
+  if (!p) {
+    document.getElementById("title").textContent = "Paper not found";
+    document.getElementById("reader").innerHTML = "<p>This paper is not in the core/high-relevance published set.</p>";
+    return;
+  }
+  document.title = p.title + " · Harness Papers Daily";
+  document.getElementById("title").textContent = p.title;
+  const label = p.relevance === 5 ? "core mechanism" : "highly relevant";
+  document.getElementById("meta").innerHTML =
+    "Day " + p.day + " · published " + p.published + " · " +
+    "<span class='badge rel" + p.relevance + "'>" + label + "</span> · " +
+    "<a href='" + p.url + "'>arXiv:" + p.id + "</a>";
 
-# ---------- per-paper pages ----------
-for i, p in enumerate(papers):
-    prev_l = f'<a href="{papers[i-1]["id"]}.html">← Day {papers[i-1]["day"]}: {html.escape(papers[i-1]["title"][:60])}</a>' if i > 0 else ""
-    next_l = f'<a href="{papers[i+1]["id"]}.html">Day {papers[i+1]["day"]}: {html.escape(papers[i+1]["title"][:60])} →</a>' if i < len(papers)-1 else ""
-    body = f"""
-<div class="kicker">Day {p['day']} · {p['date'].strftime('%b %d, %Y')}</div>
-<h1 style="margin-top:6px">{html.escape(p['title'])}</h1>
-<p class="meta">{html.escape(p['authors'])} · published {p['published']} · <a href="{p['url']}">arXiv:{p['id']}</a></p>
-<p>{rel_badge(p['relevance'])}</p>
-<div class="card">{md_block(p['body'])}</div>
-<div class="nav"><span>{prev_l}</span><span><a href="../index.html">All papers</a></span><span>{next_l}</span></div>
-"""
-    open(os.path.join(PAPERS_OUT, p["id"] + ".html"), "w", encoding="utf-8").write(page(p["title"], body))
+  document.getElementById("reader").innerHTML = marked.parse(p.body);
+  document.querySelectorAll("pre code.language-mermaid").forEach(code => {
+    const div = document.createElement("div");
+    div.className = "mermaid";
+    div.textContent = code.textContent;
+    code.parentElement.replaceWith(div);
+  });
 
-# ---------- index ----------
-today_idx = None
-sched_rows = []
-for p in papers:
-    cls = ""
-    if p["date"] == date.today():
-        cls, today_idx = "today", p
-    elif p["date"] < date.today():
-        cls = "past"
-    sched_rows.append(
-        f'<tr class="{cls}"><td><strong>Day {p["day"]}</strong></td>'
-        f'<td>{p["date"].strftime("%a %b %d")}</td>'
-        f'<td><a href="papers/{p["id"]}.html">{html.escape(p["title"])}</a></td>'
-        f'<td>{rel_badge(p["relevance"])}</td></tr>')
+  const prev = papers[i - 1];
+  const next = papers[i + 1];
+  document.getElementById("nav").innerHTML =
+    "<span>" + (prev ? "<a href='paper.html?id=" + prev.id + "'>← Day " + prev.day + ": " + prev.title + "</a>" : "") + "</span>" +
+    "<span><a href='index.html'>All papers</a></span>" +
+    "<span>" + (next ? "<a href='paper.html?id=" + next.id + "'>Day " + next.day + ": " + next.title + " →</a>" : "") + "</span>";
 
-hero = ""
-first = papers[0]
-hero = f"""
-<div class="card today">
-<div class="kicker">Start here — Day 1 · {first['date'].strftime('%b %d, %Y')}</div>
-<h3 style="margin:8px 0"><a href="papers/{first['id']}.html">{html.escape(first['title'])}</a></h3>
-<p class="meta">{html.escape(first['authors'])} · <a href="{first['url']}">arXiv:{first['id']}</a></p>
-<p>{rel_badge(first['relevance'])}</p>
-</div>"""
+  function renderMermaid() {
+    if (!window.__mermaid) return setTimeout(renderMermaid, 30);
+    window.__mermaid.initialize({startOnLoad:false, theme:"dark", securityLevel:"strict"});
+    window.__mermaid.run({querySelector:".mermaid"});
+  }
+  renderMermaid();
+})();
+</script></body></html>"""
+open(os.path.join(ROOT, "paper.html"), "w", encoding="utf-8").write(paper_html)
 
-grid = "\n".join(
-    f'<div class="card"><h4><a href="papers/{p["id"]}.html">{html.escape(p["title"])}</a></h4>'
-    f'<p class="meta">Day {p["day"]} · {html.escape(p["authors"].split(",")[0])} et al.</p>'
-    f'<p>{rel_badge(p["relevance"])}</p></div>' for p in papers)
-
-index_body = f"""
-<p>39 papers on optimizing the code around AI agents — recursive self-improvement, harness
-evolution, memory, routing, verification. One deep-dive per day, ordered by how directly each
-paper speaks to <strong>adaptive decomposition</strong> (the agent discovering its own
-decomposition of the harness, instead of evolving a fixed human-designed structure).</p>
-{hero}
-<h2>Reading schedule</h2>
-<table class="sched"><tr><th>Day</th><th>Date</th><th>Paper</th><th>Relevance</th></tr>
-{''.join(sched_rows)}
-</table>
-<h2>Browse all papers</h2>
-<div class="grid">{grid}</div>
-"""
-open(os.path.join(OUT, "index.html"), "w", encoding="utf-8").write(
-    page("Harness Papers Daily", index_body).replace('../index.html', 'index.html'))
-
-print(f"built {len(papers)} paper pages + index -> {OUT}")
+print(f"built focused site with {len(papers)} papers")
