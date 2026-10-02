@@ -7,7 +7,7 @@ The public site now publishes only papers already labeled:
 - **core mechanism** (relevance 5)
 - **highly relevant** (relevance 4)
 
-Each published paper uses simple technical English. It defines important sub-concepts, shows a compact Mermaid diagram of the main loop, explains the mechanism step by step, and states both its relevance and its limits.
+Each published paper uses simple technical English with full technical detail. It defines important sub-concepts, shows a compact Mermaid diagram of the main loop, explains the mechanism step by step, and states both its relevance and its limits.
 
 ## Repository structure
 
