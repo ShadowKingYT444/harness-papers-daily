@@ -161,7 +161,7 @@ index_html = f"""<!doctype html>
 <h1>Core papers for RHEvolution</h1>
 <p class="muted">A focused reading set on agent-harness optimization and adaptive decomposition.</p></header>
 <p>This site publishes only papers already labeled <strong>core mechanism</strong> or <strong>highly relevant</strong>.
-Each explanation uses simple technical English, defines key sub-concepts, and includes a small optimization-loop diagram.</p>
+Each explanation starts with the true novelty, then gives an implementation-oriented loop, experiment details, concrete results, ablations, limits, and RHEvolution takeaways in simple technical English.</p>
 <div class="card core"><div class="kicker">Start here · Day 1</div>
 <h3><a href="paper.html?id={first["id"]}">{html.escape(first["title"])}</a></h3>
 <p>{labels[first["relevance"]]}. This paper is the clearest starting point for component-level harness evolution.</p></div>
@@ -172,66 +172,4 @@ Each explanation uses simple technical English, defines key sub-concepts, and in
 </div></body></html>"""
 open(os.path.join(ROOT, "index.html"), "w", encoding="utf-8").write(index_html)
 
-paper_html = f"""<!doctype html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Paper · Harness Papers Daily</title><style>{STYLE}</style>
-<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
-<script type="module">
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-window.__mermaid = mermaid;
-</script></head>
-<body><div class="wrap">
-<header class="site"><div class="brand"><a href="index.html" style="color:inherit">Harness Papers Daily</a></div>
-<h1 id="title">Loading paper…</h1><div id="meta" class="meta"></div></header>
-<div id="reader" class="reader"></div>
-<div id="nav" class="nav"></div>
-<footer>Focused study notes for RHEvolution. Paper links point to arXiv.</footer>
-</div>
-<script src="papers-data.js"></script>
-<script>
-(function() {
-  const q = new URLSearchParams(location.search);
-  const id = q.get("id");
-  const papers = window.PAPERS || [];
-  const i = papers.findIndex(p => p.id === id);
-  const p = papers[i];
-  if (!p) {
-    document.getElementById("title").textContent = "Paper not found";
-    document.getElementById("reader").innerHTML = "<p>This paper is not in the core/high-relevance published set.</p>";
-    return;
-  }
-  document.title = p.title + " · Harness Papers Daily";
-  document.getElementById("title").textContent = p.title;
-  const label = p.relevance === 5 ? "core mechanism" : "highly relevant";
-  document.getElementById("meta").innerHTML =
-    "Day " + p.day + " · published " + p.published + " · " +
-    "<span class='badge rel" + p.relevance + "'>" + label + "</span> · " +
-    "<a href='" + p.url + "'>arXiv:" + p.id + "</a>";
-
-  document.getElementById("reader").innerHTML = marked.parse(p.body);
-  document.querySelectorAll("pre code.language-mermaid").forEach(code => {
-    const div = document.createElement("div");
-    div.className = "mermaid";
-    div.textContent = code.textContent;
-    code.parentElement.replaceWith(div);
-  });
-
-  const prev = papers[i - 1];
-  const next = papers[i + 1];
-  document.getElementById("nav").innerHTML =
-    "<span>" + (prev ? "<a href='paper.html?id=" + prev.id + "'>← Day " + prev.day + ": " + prev.title + "</a>" : "") + "</span>" +
-    "<span><a href='index.html'>All papers</a></span>" +
-    "<span>" + (next ? "<a href='paper.html?id=" + next.id + "'>Day " + next.day + ": " + next.title + " →</a>" : "") + "</span>";
-
-  function renderMermaid() {
-    if (!window.__mermaid) return setTimeout(renderMermaid, 30);
-    window.__mermaid.initialize({startOnLoad:false, theme:"dark", securityLevel:"strict"});
-    window.__mermaid.run({querySelector:".mermaid"});
-  }
-  renderMermaid();
-})();
-</script></body></html>"""
-open(os.path.join(ROOT, "paper.html"), "w", encoding="utf-8").write(paper_html)
-
-print(f"built focused site with {len(papers)} papers")
+# paper.html is a hand-maintained dynamic reader. Do not overwrite it here.\n\nprint(f"built focused site with {len(papers)} papers")
